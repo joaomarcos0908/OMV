@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <section class="painel" id="painel-receitas">
+      <div class="cartao">
+        <button><a href="paginaInicial.html" target="_self">Voltar</a></button>
+        <h2>Nova receita</h2>
+        <div class="linha-formulario">
+          <div class="campo">
+            <label>Descrição</label>
+            <input
+              type="text"
+              id="receita-descricao"
+              placeholder="Ex: Salário"
+            />
+          </div>
+          <div class="campo">
+            <label>Categoria</label>
+            <select id="receita-categoria">
+              <option>Salário</option>
+              <option>Estágio</option>
+              <option>Freelance</option>
+              <option>Outros</option>
+            </select>
+          </div>
+          <div class="campo campo-estreita">
+            <label>Valor (R$)</label>
+            <input
+              type="number"
+              id="receita-valor"
+              step="0.01"
+              placeholder="0,00"
+            />
+          </div>
+          <div class="campo campo-media">
+            <label>Data</label>
+            <input type="date" id="receita-data" />
+          </div>
+        </div>
+        <div class="rodape-formulario">
+          <button class="botao-primario" id="receita-botao-adicionar">
+            Adicionar receita
+          </button>
+        </div>
+      </div>
+
+      <div class="cartao">
+        <h2>Lançamentos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th class="numero">Valor</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="receita-tabela-corpo"></tbody>
+        </table>
+      </div>
+    </section>
+  </body>
+</html>

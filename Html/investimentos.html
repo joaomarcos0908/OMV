@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+     <section class="painel" id="painel-investimentos">
+        <div class="grade-indicadores" id="investimento-resumo"></div>
+
+        <div class="cartao">
+            <button><a href="paginaInicial.html" target="_self">Voltar</a></button>
+          <h2>Novo ativo</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label>Ticker / nome</label>
+              <input
+                type="text"
+                id="investimento-nome"
+                placeholder="Ex: PETR4, BTC, CDB Banco X"
+              />
+            </div>
+            <div class="campo">
+              <label>Tipo</label>
+              <select id="investimento-tipo">
+                <option>Ações</option>
+                <option>FIIs</option>
+                <option>Renda Fixa</option>
+                <option>Criptomoedas</option>
+                <option>Fundos</option>
+                <option>Outros</option>
+              </select>
+            </div>
+          </div>
+
+          
+          <div
+            class="linha-formulario"
+            id="grupo-alternar-data"
+            style="display: none"
+          >
+            <label class="campo-checkbox">
+              <input type="checkbox" id="investimento-usar-data-compra" />
+              Prefiro informar a data da compra e o valor investido — calculo a
+              quantidade e o preço médio pra mim
+            </label>
+          </div>
+
+          <!-- grupo padrão: quantidade + preço médio (mercado manual, fundos, outros) -->
+          <div class="linha-formulario" id="grupo-padrao">
+            <div class="campo campo-estreita">
+              <label>Quantidade</label>
+              <input
+                type="number"
+                id="investimento-quantidade"
+                step="0.000001"
+                placeholder="Ex: 10"
+                value="1"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label>Preço médio (R$)</label>
+              <input
+                type="number"
+                id="investimento-preco-medio"
+                step="0.01"
+                placeholder="Por unidade"
+              />
+            </div>
+            <div class="campo campo-media" id="investimento-valor-atual-campo">
+              <label>Valor atual (R$)</label>
+              <input
+                type="number"
+                id="investimento-valor-atual"
+                step="0.01"
+                placeholder="Por unidade, manual"
+              />
+            </div>
+          </div>
+
+          
+          <div
+            class="linha-formulario"
+            id="grupo-data-valor"
+            style="display: none"
+          >
+            <div class="campo campo-media">
+              <label>Data da compra</label>
+              <input type="date" id="investimento-data-compra" />
+            </div>
+            <div class="campo campo-media">
+              <label>Valor investido total (R$)</label>
+              <input
+                type="number"
+                id="investimento-valor-investido-total"
+                step="0.01"
+                placeholder="Ex: 1000"
+              />
+            </div>
+          </div>
+
+          
+          <div
+            class="linha-formulario"
+            id="grupo-renda-fixa"
+            style="display: none"
+          >
+            <div class="campo campo-media">
+              <label>Data da aplicação</label>
+              <input type="date" id="rendafixa-data-aplicacao" />
+            </div>
+            <div class="campo campo-media">
+              <label>Valor aplicado (R$)</label>
+              <input
+                type="number"
+                id="rendafixa-valor-aplicado"
+                step="0.01"
+                placeholder="Ex: 1000"
+              />
+            </div>
+            <div class="campo">
+              <label>Tipo de rendimento</label>
+              <select id="rendafixa-tipo-rendimento">
+                <option value="cdi">% do CDI</option>
+                <option value="selic">% da Selic</option>
+                <option value="pre">Prefixado (taxa fixa % a.a.)</option>
+                <option value="ipca">IPCA + taxa % a.a.</option>
+              </select>
+            </div>
+            <div class="campo campo-media">
+              <label id="rendafixa-taxa-rotulo"
+                >Percentual do CDI (ex: 100)</label
+              >
+              <input
+                type="number"
+                id="rendafixa-taxa"
+                step="0.01"
+                placeholder="100"
+              />
+            </div>
+          </div>
+
+          <div class="texto-ajuda" id="investimento-texto-ajuda">
+            <p>PREENCHERR</p>
+          </div>
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="investimento-botao-adicionar">
+              Adicionar ativo
+            </button>
+          </div>
+        </div>
+
+        <div class="cartao">
+          <h2>Carteira</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Ativo</th>
+                <th>Tipo</th>
+                <th class="numero">Investido</th>
+                <th class="numero">Atual</th>
+                <th class="numero">Retorno</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="investimento-tabela-corpo"></tbody>
+          </table>
+          <div class="rodape-formulario">
+            <button
+              class="botao-secundario"
+              id="investimento-botao-atualizar-tudo"
+            >
+              Atualizar todas as cotações
+            </button>
+          </div>
+        </div>
+
+        <div class="linha-graficos">
+          <div class="cartao">
+            <h2>Distribuição da carteira</h2>
+            <div style="position: relative; height: 220px">
+              <canvas
+                id="grafico-distribuicao"
+                role="img"
+                aria-label="Gráfico de pizza mostrando a distribuição da carteira por tipo de ativo"
+              ></canvas>
+            </div>
+            <div class="legenda" id="legenda-distribuicao"></div>
+          </div>
+          <div class="cartao">
+            <h2>Retorno por ativo</h2>
+            <div style="position: relative; height: 220px">
+              <canvas
+                id="grafico-retorno"
+                role="img"
+                aria-label="Gráfico de barras mostrando o retorno percentual de cada ativo"
+              ></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+</body>
+</html>
