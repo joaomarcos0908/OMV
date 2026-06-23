@@ -4,55 +4,71 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="../CSS/estilosPagSecundarias.css" />
   </head>
   <body>
-    <section class="painel" id="painel-metas">
-      <div class="cartao">
-        <button><a href="paginaInicial.html" target="_self">Voltar</a></button>
-        <h2>Nova meta</h2>
-        <div class="linha-formulario">
-          <div class="campo">
-            <label>Nome da meta</label>
-            <input
-              type="text"
-              id="meta-nome"
-              placeholder="Ex: Reserva de emergência"
-            />
+    <div class="aplicativo">
+      <header class="cabecalho-topo">
+        <div>
+          <span class="marca-eyebrow">livro-caixa pessoal</span>
+          <h1>OMV-Organiza Minha Vida</h1>
+        </div>
+        <button class="botao-voltar">
+          <a href="paginaInicial.html" target="_self">Voltar</a>
+        </button>
+        <span class="status-salvamento" id="status-salvamento"
+          >carregando...</span
+        >
+      </header>
+      <section class="painel ativo" id="painel-metas">
+        <div class="cartao">
+          <h2>Nova meta</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label>Nome da meta</label>
+              <input
+                type="text"
+                id="meta-nome"
+                placeholder="Ex: Reserva de emergência"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label>Valor alvo (R$)</label>
+              <input
+                type="number"
+                id="meta-valor-alvo"
+                step="0.01"
+                placeholder="0,00"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label>Já guardado (R$)</label>
+              <input
+                type="number"
+                id="meta-valor-atual"
+                step="0.01"
+                placeholder="0,00"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label>Data limite</label>
+              <input type="date" id="meta-data-limite" />
+            </div>
           </div>
-          <div class="campo campo-media">
-            <label>Valor alvo (R$)</label>
-            <input
-              type="number"
-              id="meta-valor-alvo"
-              step="0.01"
-              placeholder="0,00"
-            />
-          </div>
-          <div class="campo campo-media">
-            <label>Já guardado (R$)</label>
-            <input
-              type="number"
-              id="meta-valor-atual"
-              step="0.01"
-              placeholder="0,00"
-            />
-          </div>
-          <div class="campo campo-media">
-            <label>Data limite</label>
-            <input type="date" id="meta-data-limite" />
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="meta-botao-adicionar">
+              Criar meta
+            </button>
           </div>
         </div>
-        <div class="rodape-formulario">
-          <button class="botao-primario" id="meta-botao-adicionar">
-            Criar meta
-          </button>
-        </div>
-      </div>
 
-      <div class="cartao">
-        <h2>Suas metas</h2>
-        <div id="meta-lista"></div>
-      </div>
-    </section>
+        <div class="cartao">
+          <h2>Suas metas</h2>
+          <div id="meta-lista"></div>
+        </div>
+      </section>
+    </div>
   </body>
 </html>

@@ -1,16 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-     <section class="painel" id="painel-investimentos">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="../CSS/estilosPagSecundarias.css" />
+  </head>
+  <body>
+    <div class="aplicativo">
+      <header class="cabecalho-topo">
+        <div>
+          <span class="marca-eyebrow">livro-caixa pessoal</span>
+          <h1>OMV-Organiza Minha Vida</h1>
+        </div>
+        <button class="botao-voltar">
+          <a href="paginaInicial.html" target="_self">Voltar</a>
+        </button>
+        <span class="status-salvamento" id="status-salvamento"
+          >carregando...</span
+        >
+      </header>
+      <section class="painel ativo" id="painel-investimentos">
         <div class="grade-indicadores" id="investimento-resumo"></div>
 
         <div class="cartao">
-            <button><a href="paginaInicial.html" target="_self">Voltar</a></button>
           <h2>Novo ativo</h2>
           <div class="linha-formulario">
             <div class="campo">
@@ -34,7 +49,6 @@
             </div>
           </div>
 
-          
           <div
             class="linha-formulario"
             id="grupo-alternar-data"
@@ -79,7 +93,6 @@
             </div>
           </div>
 
-          
           <div
             class="linha-formulario"
             id="grupo-data-valor"
@@ -100,7 +113,6 @@
             </div>
           </div>
 
-          
           <div
             class="linha-formulario"
             id="grupo-renda-fixa"
@@ -201,5 +213,5 @@
         </div>
       </section>
     </div>
-</body>
+  </body>
 </html>
