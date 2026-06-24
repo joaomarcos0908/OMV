@@ -75,7 +75,8 @@
     const valor = parseFloat(document.getElementById('gasto-valor').value);
     const data = document.getElementById('gasto-data').value || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
-    estado.gastos.push({id:gerarId(), desc, cat, valor, data});
+    const fixa = document.getElementById('gasto-fixa').checked;
+    estado.gastos.push({id:gerarId(), desc, cat, valor, data, fixa});
     document.getElementById('gasto-descricao').value='';
     document.getElementById('gasto-valor').value='';
     salvarEstado();
@@ -99,13 +100,38 @@
   }
   document.getElementById('gasto-filtro-mes').addEventListener('change', renderizarGastos);
  
+  function autoPopularFixas(mesSelecionado){
+    const mesesComDados = [...new Set(estado.gastos.map(g => g.data.slice(0,7)))].sort();
+    const mesAnterior = mesesComDados.filter(m => m < mesSelecionado).pop();
+    if (!mesAnterior) return;
+
+    const fixasAnteriores = estado.gastos.filter(g => g.data.slice(0,7) === mesAnterior && g.fixa);
+    if (!fixasAnteriores.length) return;
+
+    const descricoesExistentes = new Set(
+      estado.gastos.filter(g => g.data.slice(0,7) === mesSelecionado).map(g => g.desc)
+    );
+
+    let adicionou = false;
+    fixasAnteriores.forEach(g => {
+      if (!descricoesExistentes.has(g.desc)) {
+        estado.gastos.push({
+          id: gerarId(), desc: g.desc, cat: g.cat,
+          valor: g.valor, data: mesSelecionado + '-01', fixa: true
+        });
+        adicionou = true;
+      }
+    });
+
+    if (adicionou) salvarEstado();
+  }
+
   function renderizarGastos(){
     renderizarFiltroMes();
     const mesSelecionado = document.getElementById('gasto-filtro-mes').value;
+    autoPopularFixas(mesSelecionado);
     const gastosDoMes = estado.gastos.filter(g => g.data.slice(0,7) === mesSelecionado);
-   
-    const receitasDoMes = estado.receitas.filter(r => r.data.slice(0,7) === mesSelecionado);
- 
+
     const corpo = document.getElementById('gasto-tabela-corpo');
     corpo.innerHTML='';
     const ordenados = [...gastosDoMes].sort((a,b)=> b.data.localeCompare(a.data));
@@ -116,7 +142,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${formatarDataBR(g.data)}</td>
-          <td>${escaparHtml(g.desc)}</td>
+          <td>${escaparHtml(g.desc)}${g.fixa ? ' <span class="etiqueta etiqueta-fixa">Fixa</span>' : ''}</td>
           <td><span class="etiqueta">${g.cat}</span></td>
           <td class="numero">${formatarMoeda(g.valor)}</td>
           <td style="text-align:right;"><button class="botao-secundario" data-id="${g.id}">remover</button></td>
@@ -125,17 +151,6 @@
         corpo.appendChild(tr);
       });
     }
- 
-    const totalDespesasMes = gastosDoMes.reduce((s,g)=>s+g.valor,0);
-    const totalReceitasMes = receitasDoMes.reduce((s,r)=>s+r.valor,0);
-    const saldoMes = totalReceitasMes - totalDespesasMes;
- 
-    document.getElementById('gasto-resumo').innerHTML = `
-      <div class="indicador"><div class="indicador-rotulo">Receitas (${formatarChaveMes(mesSelecionado)})</div><div class="indicador-valor positivo">${formatarMoeda(totalReceitasMes)}</div></div>
-      <div class="indicador"><div class="indicador-rotulo">Despesas (${formatarChaveMes(mesSelecionado)})</div><div class="indicador-valor negativo">${formatarMoeda(totalDespesasMes)}</div></div>
-      <div class="indicador"><div class="indicador-rotulo">Saldo do mês</div><div class="indicador-valor ${saldoMes>=0?'positivo':'negativo'}">${formatarMoeda(saldoMes)}</div></div>
-    `;
- 
     renderizarGraficoCategorias(gastosDoMes);
   }
  

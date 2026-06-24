@@ -23,8 +23,6 @@
         >
       </header>
       <section class="painel ativo" id="painel-gastos">
-        <div class="grade-indicadores" id="gasto-resumo"></div>
-
         <div class="cartao">
           <h2>Novo lançamento</h2>
           <div class="linha-formulario">
@@ -47,6 +45,19 @@
                 <option>Educação</option>
                 <option>Outros</option>
               </select>
+            </div>
+            <div class="campo campo-estreita">
+              <label>Tipo</label>
+              <div class="grupo-radio">
+                <label class="radio-opcao">
+                  <input type="radio" name="gasto-tipo" id="gasto-variavel" value="variavel" checked />
+                  <span>Variável</span>
+                </label>
+                <label class="radio-opcao">
+                  <input type="radio" name="gasto-tipo" id="gasto-fixa" value="fixa" />
+                  <span>Fixa</span>
+                </label>
+              </div>
             </div>
             <div class="campo campo-estreita">
               <label>Valor (R$)</label>
