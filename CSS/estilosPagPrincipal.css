@@ -1,0 +1,132 @@
+
+:root{
+  /* cor */
+  --papel:        #FAF8F3;
+  --papel-elevado:#FFFFFF;
+  --linha:        #E3DFD2;
+  --linha-forte:  #C7C0AA;
+  --tinta:        #16223C;
+  --tinta-suave:  #4D5A78;
+  --tinta-fraca:  #93927F;
+
+  --esmeralda:       #1F6F54;
+  --esmeralda-suave: #DCEEE6;
+  --esmeralda-texto: #154A38;
+
+  --terracota:       #B2492E;
+  --terracota-suave: #F5E3DB;
+  --terracota-texto: #7E3120;
+
+  --dourado:       #9C6F1F;
+  --dourado-suave: #F1E6CB;
+  --dourado-texto: #6E4F14;
+
+  --azul-aco:       #3F5C78;
+  --azul-aco-suave: #E2E8EE;
+
+  --raio: 8px;
+  --raio-pequeno: 4px;
+
+  --fonte-titulo: 'Source Serif 4', Georgia, serif;
+  --fonte-corpo: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --fonte-dados: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+body{
+    margin:0;
+    background:var(--azul-aco-suave);
+}
+
+h2{
+ color:var(--tinta)
+ 
+}
+h3{
+color: var(--tinta)
+}
+
+.aplicativo{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:100vh;
+    max-width:100%;
+    margin:0 auto;
+    padding:0 1rem;
+}
+.cabecalho-topo{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:30px;
+  padding-bottom:16px;
+  border-bottom:2px solid var(--tinta);
+  position:relative;
+}
+.cabecalho-topo::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:-5px;
+  height:1px;
+  background:var(--linha-forte);
+}
+.cabecalho-topo h1{
+ 
+  font-family:var(--fonte-titulo);
+  color:var(--tinta);
+  font-weight:600;
+  font-size:27px;
+  margin:0;
+  letter-spacing:0.2px;
+  color:var(--tinta);
+}
+.cabecalho-topo .marca-eyebrow{
+  display:block;
+  font-family:var(--fonte-dados);
+  font-size:10.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--tinta-fraca);
+  margin-bottom:4px;
+}
+.botoes{
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-top:20px;
+}
+.botao{
+    background:var(--esmeralda);
+    color:var(--papel);
+   
+    padding:0.5rem 1rem;
+    font-size:1rem;
+    cursor:pointer;
+}
+p{
+    font-size:1rem;
+    color:var(--tinta-suave);
+    text-align:center;
+}
+
+
+
+@media (min-width:640px){
+    .cabecalho-topo{
+        flex-direction:row;
+        justify-content:space-between;
+    }
+    .cabecalho-topo h1{
+        font-size:2rem;
+    }
+  body{
+    margin:0;
+    background:var(--azul-aco-suave);
+  } 
+
+
+
