@@ -220,6 +220,34 @@ button{ font-family:var(--fonte-corpo); }
   cursor:pointer;
   transition:background .15s ease;
 }
+
+/* ---------- GRUPO DE RADIO (fixa / variável) ---------- */
+.grupo-radio{
+  display:flex;
+  gap:12px;
+  padding-top:2px;
+}
+.radio-opcao{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:13.5px;
+  color:var(--tinta-suave);
+  cursor:pointer;
+  user-select:none;
+}
+.radio-opcao input[type="radio"]{
+  width:auto;
+  accent-color:var(--tinta);
+  cursor:pointer;
+}
+.etiqueta-fixa{
+  background:var(--dourado-suave);
+  color:var(--dourado-texto);
+  font-size:9.5px;
+  padding:1px 6px;
+  margin-left:4px;
+}
 .botao-primario:hover{ background:#0d1730; }
 .botao-primario:disabled{ opacity:0.55; cursor:default; }
 .botao-voltar{
