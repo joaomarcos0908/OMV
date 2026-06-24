@@ -49,19 +49,7 @@
             </div>
           </div>
 
-          <div
-            class="linha-formulario"
-            id="grupo-alternar-data"
-            style="display: none"
-          >
-            <label class="campo-checkbox">
-              <input type="checkbox" id="investimento-usar-data-compra" />
-              Prefiro informar a data da compra e o valor investido — calculo a
-              quantidade e o preço médio pra mim
-            </label>
-          </div>
-
-          <!-- grupo padrão: quantidade + preço médio (mercado manual, fundos, outros) -->
+          <!-- grupo padrão: quantidade + preço médio -->
           <div class="linha-formulario" id="grupo-padrao">
             <div class="campo campo-estreita">
               <label>Quantidade</label>
@@ -80,35 +68,6 @@
                 id="investimento-preco-medio"
                 step="0.01"
                 placeholder="Por unidade"
-              />
-            </div>
-            <div class="campo campo-media" id="investimento-valor-atual-campo">
-              <label>Valor atual (R$)</label>
-              <input
-                type="number"
-                id="investimento-valor-atual"
-                step="0.01"
-                placeholder="Por unidade, manual"
-              />
-            </div>
-          </div>
-
-          <div
-            class="linha-formulario"
-            id="grupo-data-valor"
-            style="display: none"
-          >
-            <div class="campo campo-media">
-              <label>Data da compra</label>
-              <input type="date" id="investimento-data-compra" />
-            </div>
-            <div class="campo campo-media">
-              <label>Valor investido total (R$)</label>
-              <input
-                type="number"
-                id="investimento-valor-investido-total"
-                step="0.01"
-                placeholder="Ex: 1000"
               />
             </div>
           </div>
@@ -213,5 +172,7 @@
         </div>
       </section>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="../JS/investimentos.js"></script>
   </body>
 </html>
