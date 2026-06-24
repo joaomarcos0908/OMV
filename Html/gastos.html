@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />  
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="../CSS/estilosPagSecundarias.css" />
   </head>
   <body>
     <div class="aplicativo">
-       <header class="cabecalho-topo">
+      <header class="cabecalho-topo">
         <div>
           <span class="marca-eyebrow">livro-caixa pessoal</span>
           <h1>OMV-Organiza Minha Vida</h1>
@@ -25,84 +25,85 @@
       <section class="painel ativo" id="painel-gastos">
         <div class="grade-indicadores" id="gasto-resumo"></div>
 
-      <div class="cartao">
-        
-        <h2>Novo lançamento</h2>
-        <div class="linha-formulario">
-          <div class="campo">
-            <label>Descrição</label>
-            <input
-              type="text"
-              id="gasto-descricao"
-              placeholder="Ex: Supermercado"
-            />
+        <div class="cartao">
+          <h2>Novo lançamento</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label>Descrição</label>
+              <input
+                type="text"
+                id="gasto-descricao"
+                placeholder="Ex: Supermercado"
+              />
+            </div>
+            <div class="campo">
+              <label>Categoria</label>
+              <select id="gasto-categoria">
+                <option>Moradia</option>
+                <option>Alimentação</option>
+                <option>Transporte</option>
+                <option>Lazer</option>
+                <option>Saúde</option>
+                <option>Educação</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="campo campo-estreita">
+              <label>Valor (R$)</label>
+              <input
+                type="number"
+                id="gasto-valor"
+                step="0.01"
+                placeholder="0,00"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label>Data</label>
+              <input type="date" id="gasto-data" />
+            </div>
           </div>
-          <div class="campo">
-            <label>Categoria</label>
-            <select id="gasto-categoria">
-              <option>Moradia</option>
-              <option>Alimentação</option>
-              <option>Transporte</option>
-              <option>Lazer</option>
-              <option>Saúde</option>
-              <option>Educação</option>
-              <option>Outros</option>
-            </select>
-          </div>
-          <div class="campo campo-estreita">
-            <label>Valor (R$)</label>
-            <input
-              type="number"
-              id="gasto-valor"
-              step="0.01"
-              placeholder="0,00"
-            />
-          </div>
-          <div class="campo campo-media">
-            <label>Data</label>
-            <input type="date" id="gasto-data" />
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="gasto-botao-adicionar">
+              Adicionar gasto
+            </button>
           </div>
         </div>
-        <div class="rodape-formulario">
-          <button class="botao-primario" id="gasto-botao-adicionar">
-            Adicionar gasto
-          </button>
-        </div>
-      </div>
 
-      <div class="cartao">
-        <div class="cartao-cabecalho">
-          <h2>Lançamentos</h2>
-          <div class="campo campo-media" style="margin: 0">
-            <label>Mês</label>
-            <select id="gasto-filtro-mes"></select>
+        <div class="cartao">
+          <div class="cartao-cabecalho">
+            <h2>Lançamentos</h2>
+            <div class="campo campo-media" style="margin: 0">
+              <label>Mês</label>
+              <select id="gasto-filtro-mes"></select>
+            </div>
           </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th class="numero">Valor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="gasto-tabela-corpo"></tbody>
+          </table>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Descrição</th>
-              <th>Categoria</th>
-              <th class="numero">Valor</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="gasto-tabela-corpo"></tbody>
-        </table>
-      </div>
 
-      <div class="cartao">
-        <h2>Distribuição por categoria (mês selecionado)</h2>
-        <div style="position: relative; height: 240px">
-          <canvas
-            id="grafico-categorias"
-            role="img"
-            aria-label="Gráfico de pizza mostrando a distribuição dos gastos por categoria"
-          ></canvas>
+        <div class="cartao">
+          <h2>Distribuição por categoria (mês selecionado)</h2>
+          <div style="position: relative; height: 240px">
+            <canvas
+              id="grafico-categorias"
+              role="img"
+              aria-label="Gráfico de pizza mostrando a distribuição dos gastos por categoria"
+            ></canvas>
+          </div>
+          <div class="legenda" id="legenda-categorias"></div>
         </div>
-        <div class="legenda" id="legenda-categorias"></div>
-      </div>
-    </section>
+      </section>
+    </div>
+    <script src="../JS/gastos.js"></script>
   </body>
 </html>
