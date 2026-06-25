@@ -107,6 +107,10 @@ color: var(--tinta)
     font-size:1rem;
     cursor:pointer;
 }
+.botao:hover{
+    background:var(--esmeralda-suave);
+    color:var(--esmeralda-texto);
+}
 p{
     font-size:1rem;
     color:var(--tinta-suave);

@@ -37,7 +37,7 @@
 
 body{
   margin:0;
-  background:var(--papel);
+  background:var(--azul-aco-suave);
   color:var(--tinta);
   font-family:var(--fonte-corpo);
   font-size:15px;
@@ -262,6 +262,7 @@ button{ font-family:var(--fonte-corpo); }
   cursor:pointer;
   transition:background .15s ease, color .15s ease;
 }
+.botao-voltar:hover{ background:var(--tinta-suave); color:#fff; } 
 .botao-secundario{
   appearance:none;
   border:1px solid var(--linha-forte);
