@@ -9,6 +9,22 @@
     return div.innerHTML;
   };
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
+  const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
+  const converterDataParaISO = (v) => {
+    const partes = (v||'').split('/');
+    if(partes.length !== 3) return v||'';
+    const [d,m,a] = partes;
+    return a+'-'+m+'-'+d;
+  };
+  function mascaraData(el){
+    el.addEventListener('input', function(){
+      let v = this.value.replace(/\D/g, '');
+      if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+      if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+      if(v.length>10) v = v.slice(0,10);
+      this.value = v;
+    });
+  }
   const NOMES_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const chaveMesAtual = () => new Date().toISOString().slice(0,7);
   const formatarChaveMes = (chave) => {
@@ -44,7 +60,9 @@
     }catch(e){
       statusEl.textContent = 'novo aqui — comece adicionando';
     }
-    document.getElementById('gasto-data').value = new Date().toISOString().slice(0,10);
+    const elData = document.getElementById('gasto-data');
+    mascaraData(elData);
+    elData.value = formatarDataInput(new Date().toISOString().slice(0,10));
     renderizarGastos();
   }
  
@@ -73,7 +91,7 @@
     const desc = document.getElementById('gasto-descricao').value.trim();
     const cat = document.getElementById('gasto-categoria').value;
     const valor = parseFloat(document.getElementById('gasto-valor').value);
-    const data = document.getElementById('gasto-data').value || new Date().toISOString().slice(0,10);
+    const data = converterDataParaISO(document.getElementById('gasto-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
     const fixa = document.getElementById('gasto-fixa').checked;
     estado.gastos.push({id:gerarId(), desc, cat, valor, data, fixa});
@@ -160,22 +178,47 @@
     const rotulos = Object.keys(porCategoria);
     const dados = Object.values(porCategoria);
     const cores = rotulos.map(l=>CORES_CATEGORIA[l]||'#8A8775');
- 
+  
     const ctx = document.getElementById('grafico-categorias');
     if(graficoCategorias) graficoCategorias.destroy();
- 
+  
     const legenda = document.getElementById('legenda-categorias');
     if(rotulos.length===0){
       legenda.innerHTML = '<span style="font-style:italic; color:var(--tinta-fraca);">Nenhum gasto neste mês ainda</span>';
       return;
     }
- 
+  
     graficoCategorias = new Chart(ctx, {
-      type:'pie',
-      data:{ labels:rotulos, datasets:[{ data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:2 }] },
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
+      type:'doughnut',
+      data:{
+        labels:rotulos,
+        datasets:[{
+          data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:3,
+          hoverOffset:10
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'68%',
+        plugins:{
+          legend:{ display:false },
+          tooltip:{
+            backgroundColor:'rgba(22,34,60,0.92)',
+            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            padding:12, cornerRadius:8, displayColors:true,
+            callbacks:{
+              label:(ctx)=>{
+                const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                const pct = total ? ((ctx.raw/total)*100).toFixed(1) : 0;
+                return ' ' + formatarMoeda(ctx.raw) + '  (' + pct.replace('.',',') + '%)';
+              }
+            }
+          }
+        },
+        animation:{ animateRotate:true, duration:500 }
+      }
     });
- 
+  
     const total = dados.reduce((a,b)=>a+b,0);
     legenda.innerHTML = rotulos.map((l,i)=>{
       const pct = total? (dados[i]/total*100):0;

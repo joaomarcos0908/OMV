@@ -415,16 +415,21 @@ td.numero{ font-family:var(--fonte-dados); font-variant-numeric:tabular-nums; }
 
 /* ---------- GRÁFICOS / LEGENDAS ---------- */
 .linha-graficos{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.linha-graficos .cartao{ position:relative; }
+.linha-graficos canvas{ filter:drop-shadow(0 1px 2px rgba(0,0,0,0.05)); }
 .legenda{
   display:flex;
   flex-wrap:wrap;
-  gap:10px 14px;
-  margin-top:12px;
+  gap:10px 16px;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--linha);
   font-size:12px;
   color:var(--tinta-suave);
 }
-.legenda span{ display:flex; align-items:center; gap:5px; }
-.ponto-legenda{ width:9px; height:9px; border-radius:2px; display:inline-block; }
+.legenda span{ display:flex; align-items:center; gap:6px; }
+.legenda span:hover{ color:var(--tinta); }
+.ponto-legenda{ width:10px; height:10px; border-radius:3px; display:inline-block; flex-shrink:0; }
 
 /* ---------- RESPONSIVO ---------- */
 @media (max-width:640px){

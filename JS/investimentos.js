@@ -9,6 +9,22 @@
     return div.innerHTML;
   };
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
+  const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
+  const converterDataParaISO = (v) => {
+    const partes = (v||'').split('/');
+    if(partes.length !== 3) return v||'';
+    const [d,m,a] = partes;
+    return a+'-'+m+'-'+d;
+  };
+  function mascaraData(el){
+    el.addEventListener('input', function(){
+      let v = this.value.replace(/\D/g, '');
+      if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+      if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+      if(v.length>10) v = v.slice(0,10);
+      this.value = v;
+    });
+  }
 
   const CRYPTO_MAP = {
     'BTC':'bitcoin','ETH':'ethereum','SOL':'solana','DOGE':'dogecoin','XRP':'ripple',
@@ -67,16 +83,26 @@
   }
 
   async function atualizarTodasCotacoes(){
-    const comApi = estado.investimentos.filter(i => i.tipo !== 'Renda Fixa' && i.quantidade != null);
-    if(comApi.length === 0) return;
+    const temRendaFixa = estado.investimentos.some(i => i.tipo === 'Renda Fixa');
+    const temApi = estado.investimentos.some(i => i.tipo !== 'Renda Fixa' && i.quantidade != null);
+    if(!temRendaFixa && !temApi) return;
     const statusEl = document.getElementById('status-salvamento');
     statusEl.textContent = 'atualizando cotações...';
-    for(const inv of comApi){
-      const cotacao = await buscarCotacao(inv.nome, inv.tipo);
-      if(cotacao != null && cotacao > 0){
-        inv.cotacaoAtual = cotacao;
-        inv.cotacaoAutomatica = true;
-        inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+    for(const inv of estado.investimentos){
+      if(inv.tipo === 'Renda Fixa'){
+        const valor = await atualizarCotacaoRendaFixa(inv);
+        if(valor != null && valor > 0){
+          inv.cotacaoAtual = valor;
+          inv.cotacaoAutomatica = true;
+          inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+        }
+      } else if(inv.quantidade != null){
+        const cotacao = await buscarCotacao(inv.nome, inv.tipo);
+        if(cotacao != null && cotacao > 0){
+          inv.cotacaoAtual = cotacao;
+          inv.cotacaoAutomatica = true;
+          inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+        }
       }
     }
     salvarEstado();
@@ -229,6 +255,7 @@
   const grupoRendaFixa = document.getElementById('grupo-renda-fixa');
   const rendafixaTaxaRotulo = document.getElementById('rendafixa-taxa-rotulo');
   const textoAjuda = document.getElementById('investimento-texto-ajuda');
+  mascaraData(document.getElementById('rendafixa-data-aplicacao'));
 
   function atualizarFormulario(){
     const tipo = tipoSelect.value;
@@ -287,7 +314,7 @@
       const tipoRendimento = document.getElementById('rendafixa-tipo-rendimento').value;
       const taxa = parseFloat(document.getElementById('rendafixa-taxa').value);
       if(!dataAplicacao || !valorAplicado || valorAplicado <= 0 || !taxa || taxa <= 0) return;
-      inv.dataAplicacao = dataAplicacao;
+      inv.dataAplicacao = converterDataParaISO(dataAplicacao);
       inv.valorAplicado = valorAplicado;
       inv.tipoRendimento = tipoRendimento;
       inv.taxa = taxa;
@@ -428,9 +455,34 @@
       return;
     }
     graficoDistribuicao = new Chart(ctx, {
-      type:'pie',
-      data:{ labels:rotulos, datasets:[{ data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:2 }] },
-      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } } }
+      type:'doughnut',
+      data:{
+        labels:rotulos,
+        datasets:[{
+          data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:3,
+          hoverOffset:10
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false, cutout:'68%',
+        plugins:{
+          legend:{ display:false },
+          tooltip:{
+            backgroundColor:'rgba(22,34,60,0.92)',
+            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            padding:12, cornerRadius:8, displayColors:true,
+            callbacks:{
+              label:(ctx)=>{
+                const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+                const pct = total ? ((ctx.raw/total)*100).toFixed(1) : 0;
+                return ' ' + formatarMoeda(ctx.raw) + '  (' + pct.replace('.',',') + '%)';
+              }
+            }
+          }
+        },
+        animation:{ animateRotate:true, duration:500 }
+      }
     });
     const total = dados.reduce((a,b)=>a+b,0);
     legendaEl.innerHTML = rotulos.map((l,i)=>{
@@ -454,17 +506,46 @@
         datasets:[{
           label:'Retorno (%)',
           data:retornos,
-          backgroundColor:cores,
+          backgroundColor:cores.map(c => c + 'CC'),
           borderColor:cores,
           borderWidth:1,
-          borderRadius:4
+          borderRadius:5,
+          borderSkipped:false,
+          hoverBackgroundColor:cores
         }]
       },
       options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:(ctx) => formatarPercentual(ctx.raw) } } },
-        scales:{ y:{ ticks:{ callback:(v) => v+'%' } }, x:{ ticks:{ maxRotation:45 } } }
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{ display:false },
+          tooltip:{
+            backgroundColor:'rgba(22,34,60,0.92)',
+            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            padding:12, cornerRadius:8,
+            callbacks:{ label:(ctx) => formatarPercentual(ctx.raw) }
+          }
+        },
+        scales:{
+          y:{
+            beginAtZero:true,
+            grid:{ color:'rgba(0,0,0,0.06)', drawBorder:false },
+            ticks:{
+              callback:(v) => v+'%',
+              font:{ family:'IBM Plex Mono, monospace', size:11 },
+              color:'#93927F'
+            }
+          },
+          x:{
+            grid:{ display:false },
+            ticks:{
+              maxRotation:45,
+              font:{ family:'Inter, sans-serif', size:11 },
+              color:'#4D5A78'
+            }
+          }
+        },
+        animation:{ duration:500 }
       }
     });
   }
