@@ -8,6 +8,22 @@
     return div.innerHTML;
   };
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
+  const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
+  const converterDataParaISO = (v) => {
+    const partes = (v||'').split('/');
+    if(partes.length !== 3) return v||'';
+    const [d,m,a] = partes;
+    return a+'-'+m+'-'+d;
+  };
+  function mascaraData(el){
+    el.addEventListener('input', function(){
+      let v = this.value.replace(/\D/g, '');
+      if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+      if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+      if(v.length>10) v = v.slice(0,10);
+      this.value = v;
+    });
+  }
 
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
   const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
@@ -31,7 +47,7 @@
     }catch(e){
       statusEl.textContent = 'novo aqui — comece adicionando';
     }
-    document.getElementById('meta-data-limite').setAttribute('min', new Date().toISOString().slice(0,10));
+    mascaraData(document.getElementById('meta-data-limite'));
     renderizarMetas();
   }
 
@@ -59,7 +75,7 @@
     const nome = document.getElementById('meta-nome').value.trim();
     const valorAlvo = parseFloat(document.getElementById('meta-valor-alvo').value);
     const valorAtual = parseFloat(document.getElementById('meta-valor-atual').value) || 0;
-    const dataLimite = document.getElementById('meta-data-limite').value;
+    const dataLimite = converterDataParaISO(document.getElementById('meta-data-limite').value);
     if(!nome || !valorAlvo || valorAlvo<=0){ return; }
     if(dataLimite && dataLimite <= new Date().toISOString().slice(0,10)){ return; }
     estado.metas.push({id:gerarId(), nome, valorAlvo, valorAtual, dataLimite});

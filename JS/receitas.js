@@ -8,6 +8,22 @@
     return div.innerHTML;
   };
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
+  const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
+  const converterDataParaISO = (v) => {
+    const partes = (v||'').split('/');
+    if(partes.length !== 3) return v||'';
+    const [d,m,a] = partes;
+    return a+'-'+m+'-'+d;
+  };
+  function mascaraData(el){
+    el.addEventListener('input', function(){
+      let v = this.value.replace(/\D/g, '');
+      if(v.length>2) v = v.slice(0,2)+'/'+v.slice(2);
+      if(v.length>5) v = v.slice(0,5)+'/'+v.slice(5);
+      if(v.length>10) v = v.slice(0,10);
+      this.value = v;
+    });
+  }
 
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
   const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
@@ -31,7 +47,9 @@
     }catch(e){
       statusEl.textContent = 'novo aqui — comece adicionando';
     }
-    document.getElementById('receita-data').value = new Date().toISOString().slice(0,10);
+    const elData = document.getElementById('receita-data');
+    mascaraData(elData);
+    elData.value = formatarDataInput(new Date().toISOString().slice(0,10));
     renderizarReceitas();
   }
 
@@ -59,7 +77,7 @@
     const desc = document.getElementById('receita-descricao').value.trim();
     const cat = document.getElementById('receita-categoria').value;
     const valor = parseFloat(document.getElementById('receita-valor').value);
-    const data = document.getElementById('receita-data').value || new Date().toISOString().slice(0,10);
+    const data = converterDataParaISO(document.getElementById('receita-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
     estado.receitas.push({id:gerarId(), desc, cat, valor, data});
     document.getElementById('receita-descricao').value='';
