@@ -67,16 +67,26 @@
   }
 
   async function atualizarTodasCotacoes(){
-    const comApi = estado.investimentos.filter(i => i.tipo !== 'Renda Fixa' && i.quantidade != null);
-    if(comApi.length === 0) return;
+    const temRendaFixa = estado.investimentos.some(i => i.tipo === 'Renda Fixa');
+    const temApi = estado.investimentos.some(i => i.tipo !== 'Renda Fixa' && i.quantidade != null);
+    if(!temRendaFixa && !temApi) return;
     const statusEl = document.getElementById('status-salvamento');
     statusEl.textContent = 'atualizando cotações...';
-    for(const inv of comApi){
-      const cotacao = await buscarCotacao(inv.nome, inv.tipo);
-      if(cotacao != null && cotacao > 0){
-        inv.cotacaoAtual = cotacao;
-        inv.cotacaoAutomatica = true;
-        inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+    for(const inv of estado.investimentos){
+      if(inv.tipo === 'Renda Fixa'){
+        const valor = await atualizarCotacaoRendaFixa(inv);
+        if(valor != null && valor > 0){
+          inv.cotacaoAtual = valor;
+          inv.cotacaoAutomatica = true;
+          inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+        }
+      } else if(inv.quantidade != null){
+        const cotacao = await buscarCotacao(inv.nome, inv.tipo);
+        if(cotacao != null && cotacao > 0){
+          inv.cotacaoAtual = cotacao;
+          inv.cotacaoAutomatica = true;
+          inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+        }
       }
     }
     salvarEstado();
