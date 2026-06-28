@@ -51,7 +51,7 @@
 
   const CORES_TIPO = {
     'Ações':'#3F5C78','FIIs':'#9C6F1F','Renda Fixa':'#1F6F54',
-    'Criptomoedas':'#B2492E','Fundos':'#6E4F9E','Outros':'#8A8775'
+    'Tesouro Direto':'#2E86AB','Criptomoedas':'#B2492E','Fundos':'#6E4F9E','Outros':'#8A8775'
   };
 
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
@@ -82,14 +82,19 @@
     atualizarTodasCotacoes();
   }
 
+  let atualizando = false;
+  let ultimaAtualizacaoTimestamp = 0;
+
   async function atualizarTodasCotacoes(){
-    const temRendaFixa = estado.investimentos.some(i => i.tipo === 'Renda Fixa');
-    const temApi = estado.investimentos.some(i => i.tipo !== 'Renda Fixa' && i.quantidade != null);
-    if(!temRendaFixa && !temApi) return;
+    if(atualizando) return;
+    atualizando = true;
+    const temRendaFixa = estado.investimentos.some(i => i.tipo === 'Renda Fixa' || i.tipo === 'Tesouro Direto');
+    const temApi = estado.investimentos.some(i => i.tipo !== 'Renda Fixa' && i.tipo !== 'Tesouro Direto' && i.quantidade != null);
+    if(!temRendaFixa && !temApi){ atualizando = false; return; }
     const statusEl = document.getElementById('status-salvamento');
     statusEl.textContent = 'atualizando cotações...';
     for(const inv of estado.investimentos){
-      if(inv.tipo === 'Renda Fixa'){
+      if(inv.tipo === 'Renda Fixa' || inv.tipo === 'Tesouro Direto'){
         const valor = await atualizarCotacaoRendaFixa(inv);
         if(valor != null && valor > 0){
           inv.cotacaoAtual = valor;
@@ -105,8 +110,10 @@
         }
       }
     }
+    ultimaAtualizacaoTimestamp = Date.now();
     salvarEstado();
     renderizarTudo();
+    atualizando = false;
   }
 
   let temporizadorSalvar = null;
@@ -168,14 +175,12 @@
   async function buscarCotacaoAcaoFII(ticker){
     const t = ticker.toUpperCase().trim();
     try{
-      const res = await fetch('https://brapi.dev/api/quote/' + encodeURIComponent(t), {
+      const res = await fetch('https://ledev.com.br/api/cotacoes/' + encodeURIComponent(t), {
         signal: AbortSignal.timeout(8000)
       });
       if(!res.ok) return null;
       const data = await res.json();
-      if(data.results && data.results[0]){
-        return data.results[0].regularMarketPrice;
-      }
+      if(data && data.price != null) return parseFloat(data.price);
       return null;
     }catch(e){
       return null;
@@ -184,7 +189,7 @@
 
   async function buscarCDI(){
     try{
-      const res = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.4390/dados/ultimos/1', {
+      const res = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1', {
         signal: AbortSignal.timeout(5000)
       });
       if(!res.ok) return null;
@@ -210,27 +215,77 @@
     }
   }
 
+  async function buscarIPCA12m(){
+    try{
+      const res = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.13522/dados/ultimos/1', {
+        signal: AbortSignal.timeout(5000)
+      });
+      if(!res.ok) return null;
+      const data = await res.json();
+      if(data && data.length > 0) return parseFloat(data[0].valor);
+      return null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  function contarDiasUteis(dataISO){
+    const fim = new Date();
+    let count = 0;
+    const current = new Date(dataISO);
+    current.setDate(current.getDate() + 1);
+    while(current <= fim){
+      const d = current.getDay();
+      if(d !== 0 && d !== 6) count++;
+      current.setDate(current.getDate() + 1);
+    }
+    return count;
+  }
+
+  function mesesDecorridos(dataISO){
+    const hoje = new Date();
+    const app = new Date(dataISO);
+    return (hoje.getFullYear() - app.getFullYear()) * 12 + (hoje.getMonth() - app.getMonth());
+  }
+
   async function atualizarCotacaoRendaFixa(inv){
+    const diasUteis = inv.dataAplicacao ? contarDiasUteis(inv.dataAplicacao) : 0;
+    const meses = inv.dataAplicacao ? mesesDecorridos(inv.dataAplicacao) : 0;
+    if(diasUteis < 0 || meses < 0) return inv.valorAplicado;
+    if(diasUteis === 0 && meses === 0) return inv.valorAplicado;
+
     if(inv.tipoRendimento === 'pre' && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
-      const dias = Math.floor((Date.now() - new Date(inv.dataAplicacao).getTime()) / (1000*60*60*24));
-      if(dias > 0){
-        return inv.valorAplicado * Math.pow(1 + inv.taxa/100, dias/365);
+      if(diasUteis === 0) return inv.valorAplicado;
+      return inv.valorAplicado * Math.pow(1 + inv.taxa/100, diasUteis/252);
+    }
+
+    if(inv.tipoRendimento === 'cdi' && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
+      const cdiDiario = await buscarCDI();
+      if(cdiDiario != null && cdiDiario > 0){
+        if(diasUteis === 0) return inv.valorAplicado;
+        const taxaDia = (cdiDiario/100) * (inv.taxa/100);
+        return inv.valorAplicado * Math.pow(1 + taxaDia, diasUteis);
       }
     }
-    if((inv.tipoRendimento === 'cdi' || inv.tipoRendimento === 'selic') && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
-      const taxaBase = inv.tipoRendimento === 'cdi' ? await buscarCDI() : await buscarSelic();
-      if(taxaBase != null && taxaBase > 0){
-        const dias = Math.floor((Date.now() - new Date(inv.dataAplicacao).getTime()) / (1000*60*60*24));
-        if(dias > 0){
-          const taxaDia = (taxaBase/100) * (inv.taxa/100) / 252;
-          return inv.valorAplicado * Math.pow(1 + taxaDia, dias);
-        }
+
+    if(inv.tipoRendimento === 'selic' && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
+      const selicDiaria = await buscarSelic();
+      if(selicDiaria != null && selicDiaria > 0){
+        if(diasUteis === 0) return inv.valorAplicado;
+        const taxaDia = (selicDiaria/100) * (inv.taxa/100);
+        return inv.valorAplicado * Math.pow(1 + taxaDia, diasUteis);
       }
     }
-    if(inv.tipoRendimento === 'ipca' && inv.valorAplicado && inv.taxa){
-      return inv.valorAplicado * (1 + inv.taxa/(100*12));
+
+    if(inv.tipoRendimento === 'ipca' && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
+      if(diasUteis === 0) return inv.valorAplicado;
+      const ipca12m = await buscarIPCA12m();
+      const taxaIPCA = ipca12m != null && ipca12m > 0 ? ipca12m/100 : 0;
+      const taxaTotal = (1 + taxaIPCA) * (1 + inv.taxa/100) - 1;
+      return inv.valorAplicado * Math.pow(1 + taxaTotal, diasUteis/252);
     }
-    return null;
+
+    return inv.valorAplicado || null;
   }
 
   function detectarTipo(ticker){
@@ -238,8 +293,7 @@
     if(CRYPTO_MAP[t]) return 'Criptomoedas';
     if(/^[A-Z]{4}11$/.test(t)) return 'FIIs';
     if(/^[A-Z]{4}[0-9]{1,2}$/.test(t)) return 'Ações';
-    if(/^[A-Z]{4}3[0-9]$/.test(t)) return 'Ações';
-    if(/^[A-Z0-9]{2,8}$/.test(t)) return 'Criptomoedas';
+    if(/^[A-Z0-9]{2,10}$/.test(t)) return 'Criptomoedas';
     return null;
   }
 
@@ -259,7 +313,7 @@
 
   function atualizarFormulario(){
     const tipo = tipoSelect.value;
-    if(tipo === 'Renda Fixa'){
+    if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
       grupoRendaFixa.style.display = '';
       grupoPadrao.style.display = 'none';
     } else {
@@ -270,6 +324,7 @@
       'Ações':'Informe o número de ações compradas e o preço médio. A cotação atual é atualizada automaticamente via brapi.dev.',
       'FIIs':'Informe o número de cotas e o preço médio. A cotação atual é atualizada automaticamente.',
       'Renda Fixa':'Informe os dados da aplicação. O valor atual será calculado com base na taxa informada.',
+      'Tesouro Direto':'Informe os dados do título. O valor atual é calculado automaticamente conforme o tipo de rendimento.',
       'Criptomoedas':'Informe a quantidade comprada e o preço médio. A cotação atual é buscada automaticamente via CoinGecko.',
       'Fundos':'Informe a quantidade de cotas e o preço médio.',
       'Outros':'Informe a quantidade e o preço médio.'
@@ -308,7 +363,7 @@
       dataAplicacao: null, valorAplicado: null, tipoRendimento: null, taxa: null
     };
 
-    if(tipo === 'Renda Fixa'){
+    if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
       const dataAplicacao = document.getElementById('rendafixa-data-aplicacao').value;
       const valorAplicado = parseFloat(document.getElementById('rendafixa-valor-aplicado').value);
       const tipoRendimento = document.getElementById('rendafixa-tipo-rendimento').value;
@@ -339,7 +394,7 @@
     const statusEl = document.getElementById('status-salvamento');
     statusEl.textContent = 'buscando cotação...';
 
-    if(tipo === 'Renda Fixa'){
+    if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
       const valor = await atualizarCotacaoRendaFixa(inv);
       if(valor != null && valor > 0){
         inv.cotacaoAtual = valor;
@@ -557,7 +612,7 @@
     const statusEl = document.getElementById('status-salvamento');
     statusEl.textContent = 'buscando cotação...';
 
-    if(inv.tipo === 'Renda Fixa'){
+    if(inv.tipo === 'Renda Fixa' || inv.tipo === 'Tesouro Direto'){
       const novoValor = await atualizarCotacaoRendaFixa(inv);
       if(novoValor != null && novoValor > 0){
         inv.cotacaoAtual = novoValor;
@@ -597,6 +652,18 @@
     }
     this.disabled = false;
     this.textContent = 'Atualizar todas as cotações';
+  });
+
+  setInterval(() => {
+    if(document.visibilityState === 'visible'){
+      atualizarTodasCotacoes();
+    }
+  }, 300000);
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && Date.now() - ultimaAtualizacaoTimestamp > 60000){
+      atualizarTodasCotacoes();
+    }
   });
 
   atualizarFormulario();
