@@ -187,17 +187,28 @@
     }
   }
 
+  function pegarCache(chave){
+    try{ const v = localStorage.getItem(chave); return v ? parseFloat(v) : null; }catch(e){ return null; }
+  }
+  function salvarCache(chave, valor){
+    try{ localStorage.setItem(chave, valor); }catch(e){}
+  }
+
   async function buscarCDI(){
     try{
       const res = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1', {
         signal: AbortSignal.timeout(5000)
       });
-      if(!res.ok) return null;
+      if(!res.ok) return pegarCache('cache_cdi');
       const data = await res.json();
-      if(data && data.length > 0) return parseFloat(data[0].valor);
-      return null;
+      if(data && data.length > 0){
+        const valor = parseFloat(data[0].valor);
+        if(valor > 0) salvarCache('cache_cdi', valor);
+        return valor;
+      }
+      return pegarCache('cache_cdi');
     }catch(e){
-      return null;
+      return pegarCache('cache_cdi');
     }
   }
 
@@ -206,12 +217,16 @@
       const res = await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.11/dados/ultimos/1', {
         signal: AbortSignal.timeout(5000)
       });
-      if(!res.ok) return null;
+      if(!res.ok) return pegarCache('cache_selic');
       const data = await res.json();
-      if(data && data.length > 0) return parseFloat(data[0].valor);
-      return null;
+      if(data && data.length > 0){
+        const valor = parseFloat(data[0].valor);
+        if(valor > 0) salvarCache('cache_selic', valor);
+        return valor;
+      }
+      return pegarCache('cache_selic');
     }catch(e){
-      return null;
+      return pegarCache('cache_selic');
     }
   }
 
@@ -266,6 +281,7 @@
         const taxaDia = (cdiDiario/100) * (inv.taxa/100);
         return inv.valorAplicado * Math.pow(1 + taxaDia, diasUteis);
       }
+      return null;
     }
 
     if(inv.tipoRendimento === 'selic' && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
@@ -275,6 +291,7 @@
         const taxaDia = (selicDiaria/100) * (inv.taxa/100);
         return inv.valorAplicado * Math.pow(1 + taxaDia, diasUteis);
       }
+      return null;
     }
 
     if(inv.tipoRendimento === 'ipca' && inv.valorAplicado && inv.dataAplicacao && inv.taxa){
@@ -309,6 +326,9 @@
   const grupoRendaFixa = document.getElementById('grupo-renda-fixa');
   const rendafixaTaxaRotulo = document.getElementById('rendafixa-taxa-rotulo');
   const textoAjuda = document.getElementById('investimento-texto-ajuda');
+  const grupoIpcaInfo = document.getElementById('grupo-ipca-info');
+  const ipcaInfoTexto = document.getElementById('ipca-info-texto');
+  const rendafixaTaxaInput = document.getElementById('rendafixa-taxa');
   mascaraData(document.getElementById('rendafixa-data-aplicacao'));
 
   function atualizarFormulario(){
@@ -334,9 +354,42 @@
 
   tipoSelect.addEventListener('change', atualizarFormulario);
 
+  let ipcaCache = null;
+
+  async function atualizarIpcaInfo(){
+    if(ipcaCache == null){
+      ipcaCache = await buscarIPCA12m();
+    }
+    if(ipcaCache != null){
+      const taxa = parseFloat(rendafixaTaxaInput.value);
+      const ipcaPct = ipcaCache;
+      let total = '';
+      if(taxa > 0){
+        const totalPct = ((1 + ipcaCache/100) * (1 + taxa/100) - 1) * 100;
+        total = ` → Total: ${totalPct.toFixed(2).replace('.',',')}% a.a.`;
+      }
+      ipcaInfoTexto.innerHTML = `<strong>${ipcaPct.toFixed(2).replace('.',',')}%</strong> + sua taxa${total}`;
+    } else {
+      ipcaInfoTexto.textContent = 'indisponível no momento';
+    }
+  }
+
   document.getElementById('rendafixa-tipo-rendimento').addEventListener('change', function(){
     const labels = { 'cdi':'Percentual do CDI (ex: 100)','selic':'Percentual da Selic (ex: 100)','pre':'Taxa fixa % a.a. (ex: 13,5)','ipca':'Taxa IPCA + % a.a. (ex: 5,5)' };
     rendafixaTaxaRotulo.textContent = labels[this.value] || 'Taxa';
+    if(this.value === 'ipca'){
+      grupoIpcaInfo.style.display = '';
+      ipcaCache = null;
+      atualizarIpcaInfo();
+    } else {
+      grupoIpcaInfo.style.display = 'none';
+    }
+  });
+
+  rendafixaTaxaInput.addEventListener('input', function(){
+    if(document.getElementById('rendafixa-tipo-rendimento').value === 'ipca'){
+      atualizarIpcaInfo();
+    }
   });
 
   nomeInput.addEventListener('blur', function(){
