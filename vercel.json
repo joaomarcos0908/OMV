@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/CSS/(.*)", "destination": "/CSS/$1" },
-    { "source": "/JS/(.*)", "destination": "/JS/$1" },
-    { "source": "/(.*)", "destination": "/Html/$1" }
-  ]
-}
