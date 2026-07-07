@@ -1,7 +1,7 @@
 # OMV — Organiza Minha Vida
 
 Aplicação web **100% front-end** para controle financeiro pessoal. Funciona diretamente no navegador, sem necessidade de servidor ou banco de dados — os dados ficam salvos no `localStorage`.
-
+#Hospedagem: Vercel https://omv-lake.vercel.app/
 ## Funcionalidades
 
 - **Gastos** — Lançamentos mensais com categorias, suporte a despesas fixas (repetição automática entre meses), filtro por mês e gráfico de distribuição
