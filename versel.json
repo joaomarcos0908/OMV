@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/Html/paginaInicial.html",
+      "permanent": false
+    }
+  ]
+}
