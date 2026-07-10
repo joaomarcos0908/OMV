@@ -6,6 +6,7 @@
     <title>OMV - Gastos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Serif+4:wght@600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../CSS/estilosPagSecundarias.css" />
   </head>
   <body>
@@ -15,9 +16,7 @@
           <span class="marca-eyebrow">livro-caixa pessoal</span>
           <h1>OMV-Organiza Minha Vida</h1>
         </div>
-        <a href="../index.html" target="_self"
-          ><button class="botao-voltar">Voltar</button></a
-        >
+        <a href="../index.html" class="botao-voltar">Voltar</a>
         <span class="status-salvamento" id="status-salvamento"
           >carregando...</span
         >
@@ -88,6 +87,7 @@
               <select id="gasto-filtro-mes"></select>
             </div>
           </div>
+          <div class="tabela-wrapper">
           <table>
             <thead>
               <tr>
@@ -100,6 +100,7 @@
             </thead>
             <tbody id="gasto-tabela-corpo"></tbody>
           </table>
+          </div>
         </div>
 
         <div class="cartao">
