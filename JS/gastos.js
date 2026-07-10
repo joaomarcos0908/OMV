@@ -39,6 +39,7 @@
   // ---------- estado compartilhado (mesma chave usada por todas as páginas) ----------
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
   let graficoCategorias = null;
+  let editandoId = null;
   const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
   const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
  
@@ -94,7 +95,14 @@
     const data = converterDataParaISO(document.getElementById('gasto-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
     const fixa = document.getElementById('gasto-fixa').checked;
-    estado.gastos.push({id:gerarId(), desc, cat, valor, data, fixa});
+    if(editandoId){
+      const idx = estado.gastos.findIndex(g => g.id === editandoId);
+      if(idx !== -1) estado.gastos[idx] = {id:editandoId, desc, cat, valor, data, fixa};
+      editandoId = null;
+      document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto';
+    } else {
+      estado.gastos.push({id:gerarId(), desc, cat, valor, data, fixa});
+    }
     document.getElementById('gasto-descricao').value='';
     document.getElementById('gasto-valor').value='';
     salvarEstado();
@@ -103,8 +111,22 @@
  
   function removerGasto(id){
     estado.gastos = estado.gastos.filter(g=>g.id!==id);
+    if(editandoId === id){ editandoId = null; document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto'; }
     salvarEstado();
     renderizarGastos();
+  }
+
+  function editarGasto(id){
+    const g = estado.gastos.find(g => g.id === id);
+    if(!g) return;
+    document.getElementById('gasto-descricao').value = g.desc;
+    document.getElementById('gasto-categoria').value = g.cat;
+    document.getElementById('gasto-valor').value = g.valor;
+    document.getElementById('gasto-data').value = formatarDataInput(g.data);
+    document.getElementById(g.fixa ? 'gasto-fixa' : 'gasto-variavel').checked = true;
+    editandoId = id;
+    document.getElementById('gasto-botao-adicionar').textContent = 'Salvar alteração';
+    window.scrollTo({top:0, behavior:'smooth'});
   }
  
   function renderizarFiltroMes(){
@@ -163,9 +185,13 @@
           <td>${escaparHtml(g.desc)}${g.fixa ? ' <span class="etiqueta etiqueta-fixa">Fixa</span>' : ''}</td>
           <td><span class="etiqueta">${g.cat}</span></td>
           <td class="numero">${formatarMoeda(g.valor)}</td>
-          <td style="text-align:right;"><button class="botao-secundario" data-id="${g.id}">remover</button></td>
+          <td style="text-align:right;">
+            <button class="botao-secundario" data-editar="${g.id}">editar</button>
+            <button class="botao-secundario" data-id="${g.id}">remover</button>
+          </td>
         `;
-        tr.querySelector('button').addEventListener('click', ()=>removerGasto(g.id));
+        tr.querySelector('[data-editar]').addEventListener('click', ()=>editarGasto(g.id));
+        tr.querySelector('[data-id]').addEventListener('click', ()=>removerGasto(g.id));
         corpo.appendChild(tr);
       });
     }

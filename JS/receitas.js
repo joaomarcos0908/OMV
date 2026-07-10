@@ -26,6 +26,7 @@
   }
 
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
+  let editandoId = null;
   const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
   const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
 
@@ -79,7 +80,14 @@
     const valor = parseFloat(document.getElementById('receita-valor').value);
     const data = converterDataParaISO(document.getElementById('receita-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
-    estado.receitas.push({id:gerarId(), desc, cat, valor, data});
+    if(editandoId){
+      const idx = estado.receitas.findIndex(r => r.id === editandoId);
+      if(idx !== -1) estado.receitas[idx] = {id:editandoId, desc, cat, valor, data};
+      editandoId = null;
+      document.getElementById('receita-botao-adicionar').textContent = 'Adicionar receita';
+    } else {
+      estado.receitas.push({id:gerarId(), desc, cat, valor, data});
+    }
     document.getElementById('receita-descricao').value='';
     document.getElementById('receita-valor').value='';
     salvarEstado();
@@ -88,8 +96,21 @@
 
   function removerReceita(id){
     estado.receitas = estado.receitas.filter(r=>r.id!==id);
+    if(editandoId === id){ editandoId = null; document.getElementById('receita-botao-adicionar').textContent = 'Adicionar receita'; }
     salvarEstado();
     renderizarReceitas();
+  }
+
+  function editarReceita(id){
+    const r = estado.receitas.find(r => r.id === id);
+    if(!r) return;
+    document.getElementById('receita-descricao').value = r.desc;
+    document.getElementById('receita-categoria').value = r.cat;
+    document.getElementById('receita-valor').value = r.valor;
+    document.getElementById('receita-data').value = formatarDataInput(r.data);
+    editandoId = id;
+    document.getElementById('receita-botao-adicionar').textContent = 'Salvar alteração';
+    window.scrollTo({top:0, behavior:'smooth'});
   }
 
   function renderizarReceitas(){
@@ -106,9 +127,13 @@
           <td>${escaparHtml(r.desc)}</td>
           <td><span class="etiqueta">${r.cat}</span></td>
           <td class="numero">${formatarMoeda(r.valor)}</td>
-          <td style="text-align:right;"><button class="botao-secundario" data-id="${r.id}">remover</button></td>
+          <td style="text-align:right;">
+            <button class="botao-secundario" data-editar="${r.id}">editar</button>
+            <button class="botao-secundario" data-id="${r.id}">remover</button>
+          </td>
         `;
-        tr.querySelector('button').addEventListener('click', ()=>removerReceita(r.id));
+        tr.querySelector('[data-editar]').addEventListener('click', ()=>editarReceita(r.id));
+        tr.querySelector('[data-id]').addEventListener('click', ()=>removerReceita(r.id));
         corpo.appendChild(tr);
       });
     }
