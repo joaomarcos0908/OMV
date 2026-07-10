@@ -12,31 +12,28 @@
   <body>
     <div class="aplicativo">
       <header class="cabecalho-topo">
-        <div>
-          <span class="marca-eyebrow">livro-caixa pessoal</span>
-          <h1>OMV-Organiza Minha Vida</h1>
-        </div>
-        <span class="status-salvamento" id="status-salvamento"
-          >carregando...</span
-        >
+        <span class="marca-eyebrow">livro-caixa pessoal</span>
+        <h1>OMV<br />Organiza Minha Vida</h1>
+        <span class="status-salvamento" id="status-salvamento">carregando...</span>
       </header>
-    <h2>Bem-vindo à Página Inicial</h2>
-    <p>OMV - Organiza Minha Vida</p>
-    <p>Bem-vindo à nossa plataforma!</p>
-    <h3>Relatório Mensal</h3>
-    <p>
-      Confira seu relatório mensal de gastos, receitas, metas e investimentos.
-    </p>
-    <div class="campo" style="max-width:190px">
-      <label>Mês</label>
-      <select id="resumo-filtro-mes"></select>
-    </div>
-    <div class="grade-indicadores" id="resumo-indicadores"></div>
-    <div class="botoes">
-      <a href="Html/gastos.html" target="_self"><button class="botao">Gastos</button></a>
-      <a href="Html/receitas.html" target="_self"><button class="botao">Receitas</button></a>
-      <a href="Html/metas.html" target="_self"><button class="botao">Metas</button></a>
-      <a href="Html/investimentos.html" target="_self"><button class="botao">Investimentos</button></a>
+
+      <div class="cartao-tech">
+        <h2>Resumo Mensal</h2>
+
+        <div class="campo" style="max-width:190px; margin-left:auto; margin-right:auto;">
+          <label>Mês</label>
+          <select id="resumo-filtro-mes"></select>
+        </div>
+
+        <div class="grade-indicadores" id="resumo-indicadores"></div>
+
+        <nav class="botoes">
+          <a href="Html/gastos.html" class="botao">Gastos</a>
+          <a href="Html/receitas.html" class="botao">Receitas</a>
+          <a href="Html/metas.html" class="botao">Metas</a>
+          <a href="Html/investimentos.html" class="botao">Investimentos</a>
+        </nav>
+      </div>
     </div>
     <script src="JS/paginaInicial.js"></script>
   </body>
