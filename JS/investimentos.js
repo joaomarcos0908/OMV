@@ -57,6 +57,7 @@
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
   let graficoDistribuicao = null;
   let graficoRetorno = null;
+  let editandoId = null;
   const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
   const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
 
@@ -409,12 +410,29 @@
 
     const temApi = tipo === 'Ações' || tipo === 'FIIs' || tipo === 'Criptomoedas' || tipo === 'Fundos';
 
-    const inv = {
-      id: gerarId(), nome, tipo,
-      cotacaoAtual: null, cotacaoAutomatica: false, ultimaAtualizacao: null,
-      quantidade: null, precoMedio: null,
-      dataAplicacao: null, valorAplicado: null, tipoRendimento: null, taxa: null
-    };
+    let inv;
+    if(editandoId){
+      inv = estado.investimentos.find(i => i.id === editandoId);
+      if(!inv) return;
+      inv.nome = nome;
+      inv.tipo = tipo;
+      inv.cotacaoAtual = null;
+      inv.cotacaoAutomatica = false;
+      inv.ultimaAtualizacao = null;
+      inv.quantidade = null;
+      inv.precoMedio = null;
+      inv.dataAplicacao = null;
+      inv.valorAplicado = null;
+      inv.tipoRendimento = null;
+      inv.taxa = null;
+    } else {
+      inv = {
+        id: gerarId(), nome, tipo,
+        cotacaoAtual: null, cotacaoAutomatica: false, ultimaAtualizacao: null,
+        quantidade: null, precoMedio: null,
+        dataAplicacao: null, valorAplicado: null, tipoRendimento: null, taxa: null
+      };
+    }
 
     if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
       const dataAplicacao = document.getElementById('rendafixa-data-aplicacao').value;
@@ -434,7 +452,11 @@
       inv.precoMedio = precoMedio;
     }
 
-    estado.investimentos.push(inv);
+    if(!editandoId) estado.investimentos.push(inv);
+
+    editandoId = null;
+    document.getElementById('investimento-botao-adicionar').textContent = 'Adicionar investimento';
+
     nomeInput.value = '';
     document.getElementById('investimento-quantidade').value = '1';
     document.getElementById('investimento-preco-medio').value = '';
@@ -474,8 +496,29 @@
 
   function removerInvestimento(id){
     estado.investimentos = estado.investimentos.filter(i => i.id !== id);
+    if(editandoId === id){ editandoId = null; document.getElementById('investimento-botao-adicionar').textContent = 'Adicionar investimento'; }
     salvarEstado();
     renderizarTudo();
+  }
+
+  function editarInvestimento(id){
+    const i = estado.investimentos.find(i => i.id === id);
+    if(!i) return;
+    nomeInput.value = i.nome;
+    tipoSelect.value = i.tipo;
+    atualizarFormulario();
+    if(i.tipo === 'Renda Fixa' || i.tipo === 'Tesouro Direto'){
+      document.getElementById('rendafixa-data-aplicacao').value = formatarDataInput(i.dataAplicacao);
+      document.getElementById('rendafixa-valor-aplicado').value = i.valorAplicado;
+      document.getElementById('rendafixa-tipo-rendimento').value = i.tipoRendimento;
+      document.getElementById('rendafixa-taxa').value = i.taxa;
+    } else {
+      document.getElementById('investimento-quantidade').value = i.quantidade;
+      document.getElementById('investimento-preco-medio').value = i.precoMedio;
+    }
+    editandoId = i.id;
+    document.getElementById('investimento-botao-adicionar').textContent = 'Salvar alteração';
+    window.scrollTo({top:0, behavior:'smooth'});
   }
 
   function renderizarTudo(){
@@ -536,9 +579,11 @@
         <td class="numero" style="color:${retorno >= 0 ? 'var(--esmeralda-texto)' : 'var(--terracota-texto)'}">${formatarMoeda(retorno)} (${formatarPercentual(retornoPct)})</td>
         <td style="text-align:right;">
           <button class="botao-secundario" data-id="${i.id}" data-acao="atualizar" title="Atualizar cotação">↻</button>
+          <button class="botao-secundario" data-id="${i.id}" data-acao="editar">editar</button>
           <button class="botao-secundario" data-id="${i.id}" data-acao="remover">remover</button>
         </td>
       `;
+      tr.querySelector('[data-acao="editar"]').addEventListener('click', () => editarInvestimento(i.id));
       tr.querySelector('[data-acao="remover"]').addEventListener('click', () => removerInvestimento(i.id));
       tr.querySelector('[data-acao="atualizar"]').addEventListener('click', () => atualizarCotacao(i.id));
       corpo.appendChild(tr);
