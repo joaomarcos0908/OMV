@@ -2,7 +2,6 @@
 
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   const formatarPercentual = (v) => (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
-  const gerarId = () => Math.random().toString(36).slice(2, 10);
   const escaparHtml = (s) => {
     const div = document.createElement('div');
     div.textContent = s;
@@ -24,6 +23,11 @@
       if(v.length>10) v = v.slice(0,10);
       this.value = v;
     });
+  }
+
+  if (!auth.isLoggedIn()) {
+    window.location.href = '/Html/login.html';
+    return;
   }
 
   const CRYPTO_MAP = {
@@ -58,26 +62,35 @@
   let graficoDistribuicao = null;
   let graficoRetorno = null;
   let editandoId = null;
-  const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
-  const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
+
+  function normalizarInvestimento(r){
+    return {
+      id: r.id,
+      nome: r.nome,
+      tipo: r.tipo,
+      cotacaoAtual: r.cotacaoAtual != null ? Number(r.cotacaoAtual) : r.cotacao_atual != null ? Number(r.cotacao_atual) : null,
+      cotacaoAutomatica: r.cotacaoAutomatica ?? r.cotacao_automatica ?? false,
+      ultimaAtualizacao: (r.ultimaAtualizacao || r.ultima_atualizacao || '') ? String(r.ultimaAtualizacao || r.ultima_atualizacao).slice(0,10) : null,
+      quantidade: r.quantidade != null ? Number(r.quantidade) : null,
+      precoMedio: r.precoMedio != null ? Number(r.precoMedio) : r.preco_medio != null ? Number(r.preco_medio) : null,
+      dataAplicacao: (r.dataAplicacao || r.data_aplicacao || '') ? String(r.dataAplicacao || r.data_aplicacao).slice(0,10) : null,
+      valorAplicado: r.valorAplicado != null ? Number(r.valorAplicado) : r.valor_aplicado != null ? Number(r.valor_aplicado) : null,
+      tipoRendimento: r.tipoRendimento || r.tipo_rendimento || null,
+      taxa: r.taxa != null ? Number(r.taxa) : null
+    };
+  }
 
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      let bruto = null;
-      if(TEM_ARMAZENAMENTO_WIDGET){
-        const res = await window.storage.get(CHAVE_ARMAZENAMENTO);
-        bruto = res && res.value;
-      } else {
-        bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
-      }
-      if(bruto){
-        const dados = JSON.parse(bruto);
-        estado = Object.assign({receitas:[],gastos:[],metas:[],investimentos:[]}, dados);
-      }
-      statusEl.textContent = 'dados salvos automaticamente';
+      const res = await auth.apiFetch('/investimentos');
+      let lista = [];
+      if (res && res.investimentos) lista = res.investimentos;
+      else if (res && Array.isArray(res)) lista = res;
+      estado.investimentos = lista.map(normalizarInvestimento);
+      statusEl.textContent = 'dados carregados';
     }catch(e){
-      statusEl.textContent = 'novo aqui — comece adicionando';
+      statusEl.textContent = 'erro ao carregar dados';
     }
     renderizarTudo();
     atualizarTodasCotacoes();
@@ -85,6 +98,28 @@
 
   let atualizando = false;
   let ultimaAtualizacaoTimestamp = 0;
+
+  async function persistirInvestimento(inv){
+    try{
+      await auth.apiFetch('/investimentos', {
+        method: 'PUT',
+        body: JSON.stringify({
+          id: inv.id,
+          nome: inv.nome,
+          tipo: inv.tipo,
+          cotacaoAtual: inv.cotacaoAtual,
+          cotacaoAutomatica: inv.cotacaoAutomatica,
+          ultimaAtualizacao: inv.ultimaAtualizacao,
+          quantidade: inv.quantidade,
+          precoMedio: inv.precoMedio,
+          dataAplicacao: inv.dataAplicacao,
+          valorAplicado: inv.valorAplicado,
+          tipoRendimento: inv.tipoRendimento,
+          taxa: inv.taxa
+        })
+      });
+    }catch(e){}
+  }
 
   async function atualizarTodasCotacoes(){
     if(atualizando) return;
@@ -101,6 +136,7 @@
           inv.cotacaoAtual = valor;
           inv.cotacaoAutomatica = true;
           inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+          await persistirInvestimento(inv);
         }
       } else if(inv.quantidade != null){
         const cotacao = await buscarCotacao(inv.nome, inv.tipo);
@@ -108,33 +144,14 @@
           inv.cotacaoAtual = cotacao;
           inv.cotacaoAutomatica = true;
           inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+          await persistirInvestimento(inv);
         }
       }
     }
     ultimaAtualizacaoTimestamp = Date.now();
-    salvarEstado();
+    statusEl.textContent = 'tudo salvo';
     renderizarTudo();
     atualizando = false;
-  }
-
-  let temporizadorSalvar = null;
-  function salvarEstado(){
-    const statusEl = document.getElementById('status-salvamento');
-    statusEl.textContent = 'salvando...';
-    clearTimeout(temporizadorSalvar);
-    temporizadorSalvar = setTimeout(async ()=>{
-      try{
-        const payload = JSON.stringify(estado);
-        if(TEM_ARMAZENAMENTO_WIDGET){
-          await window.storage.set(CHAVE_ARMAZENAMENTO, payload);
-        } else {
-          localStorage.setItem(CHAVE_ARMAZENAMENTO, payload);
-        }
-        statusEl.textContent = 'tudo salvo';
-      }catch(e){
-        statusEl.textContent = 'erro ao salvar — tente novamente';
-      }
-    }, 300);
   }
 
   function calcularInvestido(inv){
@@ -410,29 +427,7 @@
 
     const temApi = tipo === 'Ações' || tipo === 'FIIs' || tipo === 'Criptomoedas' || tipo === 'Fundos';
 
-    let inv;
-    if(editandoId){
-      inv = estado.investimentos.find(i => i.id === editandoId);
-      if(!inv) return;
-      inv.nome = nome;
-      inv.tipo = tipo;
-      inv.cotacaoAtual = null;
-      inv.cotacaoAutomatica = false;
-      inv.ultimaAtualizacao = null;
-      inv.quantidade = null;
-      inv.precoMedio = null;
-      inv.dataAplicacao = null;
-      inv.valorAplicado = null;
-      inv.tipoRendimento = null;
-      inv.taxa = null;
-    } else {
-      inv = {
-        id: gerarId(), nome, tipo,
-        cotacaoAtual: null, cotacaoAutomatica: false, ultimaAtualizacao: null,
-        quantidade: null, precoMedio: null,
-        dataAplicacao: null, valorAplicado: null, tipoRendimento: null, taxa: null
-      };
-    }
+    let payload = { nome, tipo, cotacaoAtual: null, cotacaoAutomatica: false, ultimaAtualizacao: null, quantidade: null, precoMedio: null, dataAplicacao: null, valorAplicado: null, tipoRendimento: null, taxa: null };
 
     if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
       const dataAplicacao = document.getElementById('rendafixa-data-aplicacao').value;
@@ -440,65 +435,87 @@
       const tipoRendimento = document.getElementById('rendafixa-tipo-rendimento').value;
       const taxa = parseFloat(document.getElementById('rendafixa-taxa').value);
       if(!dataAplicacao || !valorAplicado || valorAplicado <= 0 || !taxa || taxa <= 0) return;
-      inv.dataAplicacao = converterDataParaISO(dataAplicacao);
-      inv.valorAplicado = valorAplicado;
-      inv.tipoRendimento = tipoRendimento;
-      inv.taxa = taxa;
+      payload.dataAplicacao = converterDataParaISO(dataAplicacao);
+      payload.valorAplicado = valorAplicado;
+      payload.tipoRendimento = tipoRendimento;
+      payload.taxa = taxa;
     } else {
       const quantidade = parseFloat(document.getElementById('investimento-quantidade').value);
       const precoMedio = parseFloat(document.getElementById('investimento-preco-medio').value);
       if(!quantidade || quantidade <= 0 || !precoMedio || precoMedio <= 0) return;
-      inv.quantidade = quantidade;
-      inv.precoMedio = precoMedio;
+      payload.quantidade = quantidade;
+      payload.precoMedio = precoMedio;
     }
 
-    if(!editandoId) estado.investimentos.push(inv);
-
-    editandoId = null;
-    document.getElementById('investimento-botao-adicionar').textContent = 'Adicionar investimento';
-
-    nomeInput.value = '';
-    document.getElementById('investimento-quantidade').value = '1';
-    document.getElementById('investimento-preco-medio').value = '';
-    document.getElementById('rendafixa-data-aplicacao').value = '';
-    document.getElementById('rendafixa-valor-aplicado').value = '';
-    document.getElementById('rendafixa-taxa').value = '';
-    salvarEstado();
-    renderizarTudo();
-
     const statusEl = document.getElementById('status-salvamento');
-    statusEl.textContent = 'buscando cotação...';
-
-    if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
-      const valor = await atualizarCotacaoRendaFixa(inv);
-      if(valor != null && valor > 0){
-        inv.cotacaoAtual = valor;
-        inv.cotacaoAutomatica = true;
-        inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
-        salvarEstado();
-        renderizarTudo();
-      }
-    } else if(temApi && inv.cotacaoAtual == null){
-      const cotacao = await buscarCotacao(nome, tipo);
-      if(cotacao != null && cotacao > 0){
-        inv.cotacaoAtual = cotacao;
-        inv.cotacaoAutomatica = true;
-        inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
-        salvarEstado();
-        renderizarTudo();
+    try{
+      let inv;
+      if(editandoId){
+        payload.id = editandoId;
+        const res = await auth.apiFetch('/investimentos', { method: 'PUT', body: JSON.stringify(payload) });
+        inv = res && res.investimento ? normalizarInvestimento(res.investimento) : null;
+        if(inv){
+          const idx = estado.investimentos.findIndex(i => i.id === editandoId);
+          if(idx !== -1) estado.investimentos[idx] = inv; else estado.investimentos.push(inv);
+        }
+        editandoId = null;
+        document.getElementById('investimento-botao-adicionar').textContent = 'Adicionar investimento';
       } else {
-        statusEl.textContent = 'cotação indisponível — clique ↻ para tentar novamente';
+        const res = await auth.apiFetch('/investimentos', { method: 'POST', body: JSON.stringify(payload) });
+        inv = res && res.investimento ? normalizarInvestimento(res.investimento) : null;
+        if(inv) estado.investimentos.push(inv);
       }
-    } else {
-      statusEl.textContent = 'tudo salvo';
+
+      nomeInput.value = '';
+      document.getElementById('investimento-quantidade').value = '1';
+      document.getElementById('investimento-preco-medio').value = '';
+      document.getElementById('rendafixa-data-aplicacao').value = '';
+      document.getElementById('rendafixa-valor-aplicado').value = '';
+      document.getElementById('rendafixa-taxa').value = '';
+      renderizarTudo();
+
+      if(inv){
+        statusEl.textContent = 'buscando cotação...';
+        if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
+          const valor = await atualizarCotacaoRendaFixa(inv);
+          if(valor != null && valor > 0){
+            inv.cotacaoAtual = valor;
+            inv.cotacaoAutomatica = true;
+            inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+            await persistirInvestimento(inv);
+            renderizarTudo();
+          }
+        } else if(temApi){
+          const cotacao = await buscarCotacao(nome, tipo);
+          if(cotacao != null && cotacao > 0){
+            inv.cotacaoAtual = cotacao;
+            inv.cotacaoAutomatica = true;
+            inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+            await persistirInvestimento(inv);
+            renderizarTudo();
+          } else {
+            statusEl.textContent = 'cotação indisponível — clique ↻ para tentar novamente';
+            return;
+          }
+        }
+        statusEl.textContent = 'tudo salvo';
+      }
+    }catch(e){
+      statusEl.textContent = 'erro ao salvar';
     }
   });
 
-  function removerInvestimento(id){
-    estado.investimentos = estado.investimentos.filter(i => i.id !== id);
-    if(editandoId === id){ editandoId = null; document.getElementById('investimento-botao-adicionar').textContent = 'Adicionar investimento'; }
-    salvarEstado();
-    renderizarTudo();
+  async function removerInvestimento(id){
+    const statusEl = document.getElementById('status-salvamento');
+    try{
+      await auth.apiFetch('/investimentos', { method: 'DELETE', body: JSON.stringify({ id }) });
+      estado.investimentos = estado.investimentos.filter(i => i.id !== id);
+      if(editandoId === id){ editandoId = null; document.getElementById('investimento-botao-adicionar').textContent = 'Adicionar investimento'; }
+      statusEl.textContent = 'removido';
+      renderizarTudo();
+    }catch(e){
+      statusEl.textContent = 'erro ao remover';
+    }
   }
 
   function editarInvestimento(id){
@@ -716,8 +733,9 @@
         inv.cotacaoAtual = novoValor;
         inv.cotacaoAutomatica = true;
         inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
-        salvarEstado();
+        await persistirInvestimento(inv);
         renderizarTudo();
+        statusEl.textContent = 'cotação atualizada';
         return;
       }
       statusEl.textContent = 'erro ao calcular renda fixa';
@@ -734,7 +752,7 @@
       inv.cotacaoAtual = cotacao;
       inv.cotacaoAutomatica = true;
       inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
-      salvarEstado();
+      await persistirInvestimento(inv);
       renderizarTudo();
       statusEl.textContent = 'cotação atualizada';
     } else {
