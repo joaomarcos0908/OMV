@@ -1,0 +1,86 @@
+.login-card {
+  text-align: left;
+}
+
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-card .form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.login-card .link-cadastro {
+  font-size: 13px;
+  color: var(--destaque-ciano);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--fonte-corpo);
+  text-decoration: underline;
+}
+
+.login-card .link-cadastro:hover {
+  color: #38bdf8;
+}
+
+.tab {
+  display: none;
+}
+
+.tab.ativo {
+  display: block;
+}
+
+.alerta {
+  padding: 10px 14px;
+  border-radius: var(--raio-pequeno);
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.alerta.erro {
+  background: var(--terracota-suave);
+  color: var(--terracota-texto);
+  border: 1px solid var(--terracota);
+}
+
+.alerta.sucesso {
+  background: var(--esmeralda-suave);
+  color: var(--esmeralda-texto);
+  border: 1px solid var(--esmeralda);
+}
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--raio-botao);
+  font-family: var(--fonte-corpo);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--gradiente-destaque);
+  box-shadow: var(--sombra-botao);
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.btn-login:hover {
+  opacity: 0.9;
+}
+
+.btn-login:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.texto-ajuda-login {
+  font-size: 12px;
+  color: var(--tinta-fraca);
+}
