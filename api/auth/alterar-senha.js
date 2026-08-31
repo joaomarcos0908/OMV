@@ -7,14 +7,17 @@ async function handler(req, res) {
     return res.status(405).json({ erro: 'Método não permitido' });
   }
 
-  const { senha_atual, nova_senha } = req.body;
+  const { senha_atual, nova_senha } = (req.body || {});
 
   if (!senha_atual || !nova_senha) {
     return res.status(400).json({ erro: 'Senha atual e nova senha são obrigatórias' });
   }
 
-  if (nova_senha.length < 6) {
-    return res.status(400).json({ erro: 'A nova senha deve ter pelo menos 6 caracteres' });
+  if (typeof nova_senha !== 'string' || nova_senha.length < 6 || nova_senha.length > 128) {
+    return res.status(400).json({ erro: 'A nova senha deve ter entre 6 e 128 caracteres' });
+  }
+  if (typeof senha_atual !== 'string' || senha_atual.length > 128) {
+    return res.status(400).json({ erro: 'Senha atual inválida' });
   }
 
   autenticar(req, res, async () => {

@@ -1,5 +1,6 @@
 const { query } = require('../lib/db');
 const { autenticar } = require('../lib/autenticar');
+const { textoValido, valorValido, valorOpcionalValido, dataISOopcional, uuidValido } = require('../lib/validar');
 
 async function handler(req, res) {
   autenticar(req, res, async () => {
@@ -19,14 +20,18 @@ async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { nome, valorAlvo, valorAtual, dataLimite } = req.body;
-      if (!nome || !valorAlvo) {
+      const { nome, valorAlvo, valorAtual, dataLimite } = req.body || {};
+      if (!nome || valorAlvo === undefined || valorAlvo === null || valorAlvo === '') {
         return res.status(400).json({ erro: 'Nome e valor alvo são obrigatórios' });
       }
+      if (!textoValido(nome, 1, 120)) return res.status(400).json({ erro: 'Nome inválido (1-120)' });
+      if (!valorValido(valorAlvo)) return res.status(400).json({ erro: 'Valor alvo inválido' });
+      if (!valorOpcionalValido(valorAtual)) return res.status(400).json({ erro: 'Valor atual inválido' });
+      if (!dataISOopcional(dataLimite)) return res.status(400).json({ erro: 'Data limite inválida (YYYY-MM-DD)' });
       try {
         const result = await query(
           'INSERT INTO metas (usuario_id, nome, valor_alvo, valor_atual, data_limite) VALUES ($1, $2, $3, $4, $5) RETURNING id, nome, valor_alvo, valor_atual, data_limite, criado_em',
-          [usuarioId, nome, parseFloat(valorAlvo), parseFloat(valorAtual) || 0, dataLimite || null]
+          [usuarioId, String(nome).trim(), Number(valorAlvo), valorAtual !== undefined && valorAtual !== '' ? Number(valorAtual) : 0, dataLimite || null]
         );
         return res.status(201).json({ meta: result.rows[0] });
       } catch (err) {
@@ -36,10 +41,11 @@ async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      const { id } = req.body;
+      const { id } = (req.body || {});
       if (!id) {
         return res.status(400).json({ erro: 'ID é obrigatório' });
       }
+      if (!uuidValido(id)) return res.status(400).json({ erro: 'ID inválido' });
       try {
         const result = await query(
           'DELETE FROM metas WHERE id = $1 AND usuario_id = $2 RETURNING id',

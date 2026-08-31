@@ -1,11 +1,24 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost')
-    ? { rejectUnauthorized: false }
-    : false,
-});
+function getPool() {
+  if (!process.env.DATABASE_URL) {
+    throw Object.assign(new Error('DATABASE_URL não configurada'), { code: 'ENV_MISSING' });
+  }
+  return new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl:
+      process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost')
+        ? { rejectUnauthorized: false }
+        : false,
+    max: 5,
+  });
+}
+
+let _pool = null;
+function getOrCreatePool() {
+  if (!_pool) _pool = getPool();
+  return _pool;
+}
 
 const SQL_SCHEMA = `
   CREATE TABLE IF NOT EXISTS usuarios (
@@ -68,7 +81,8 @@ const SQL_SCHEMA = `
 let prontoSchema = null;
 async function garantirSchema() {
   if (!prontoSchema) {
-    prontoSchema = pool
+    const p = getOrCreatePool();
+    prontoSchema = p
       .query(SQL_SCHEMA)
       .then(() => true)
       .catch((err) => {
@@ -81,7 +95,7 @@ async function garantirSchema() {
 
 async function query(text, params) {
   await garantirSchema();
-  return pool.query(text, params);
+  return getOrCreatePool().query(text, params);
 }
 
-module.exports = { pool, query };
+module.exports = { get pool() { return getOrCreatePool(); }, query };
