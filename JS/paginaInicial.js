@@ -1,5 +1,4 @@
 (function(){
-
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   const NOMES_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const chaveMesAtual = () => new Date().toISOString().slice(0,7);
@@ -8,27 +7,23 @@
     return NOMES_MESES[parseInt(mes,10)-1] + ' de ' + ano;
   };
 
+  if (!auth.isLoggedIn()) {
+    window.location.href = 'index.html';
+    return;
+  }
+
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
-  const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
-  const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
 
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      let bruto = null;
-      if(TEM_ARMAZENAMENTO_WIDGET){
-        const res = await window.storage.get(CHAVE_ARMAZENAMENTO);
-        bruto = res && res.value;
-      } else {
-        bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
-      }
-      if(bruto){
-        const dados = JSON.parse(bruto);
-        estado = Object.assign({receitas:[],gastos:[],metas:[],investimentos:[]}, dados);
-      }
-      statusEl.textContent = 'dados salvos automaticamente';
+      const gastosData = await auth.apiFetch('/api/gastos');
+      const receitasData = await auth.apiFetch('/api/receitas');
+      if (gastosData) estado.gastos = gastosData.gastos || [];
+      if (receitasData) estado.receitas = receitasData.receitas || [];
+      statusEl.textContent = 'dados carregados';
     }catch(e){
-      statusEl.textContent = 'novo aqui — comece adicionando';
+      statusEl.textContent = 'erro ao carregar dados';
     }
     renderizarFiltroMes();
     renderizarResumo();
@@ -43,7 +38,7 @@
     estado.receitas.forEach(r => { if (r.data) conjuntoMeses.add(r.data.slice(0,7)); });
     conjuntoMeses.add(chaveMesAtual());
     const meses = Array.from(conjuntoMeses).sort().reverse();
-    select.innerHTML = meses.map(m => `<option value="${m}">${formatarChaveMes(m)}</option>`).join('');
+    select.innerHTML = meses.map(m=> `<option value="${m}">${formatarChaveMes(m)}</option>`).join('');
     select.value = meses.includes(anterior) ? anterior : chaveMesAtual();
   }
 
