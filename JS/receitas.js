@@ -1,7 +1,6 @@
 (function(){
 
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  const gerarId = () => Math.random().toString(36).slice(2, 10);
   const escaparHtml = (s) => {
     const div = document.createElement('div');
     div.textContent = s;
@@ -25,28 +24,35 @@
     });
   }
 
+  if (!auth.isLoggedIn()) {
+    window.location.href = '/Html/login.html';
+    return;
+  }
+
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
   let editandoId = null;
-  const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
-  const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
+
+  function normalizarReceita(r){
+    return {
+      id: r.id,
+      desc: r.descricao || r.desc,
+      cat: r.categoria || r.cat,
+      valor: Number(r.valor),
+      data: (r.data || '').slice(0,10)
+    };
+  }
 
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      let bruto = null;
-      if(TEM_ARMAZENAMENTO_WIDGET){
-        const res = await window.storage.get(CHAVE_ARMAZENAMENTO);
-        bruto = res && res.value;
-      } else {
-        bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
-      }
-      if(bruto){
-        const dados = JSON.parse(bruto);
-        estado = Object.assign({receitas:[],gastos:[],metas:[],investimentos:[]}, dados);
-      }
-      statusEl.textContent = 'dados salvos automaticamente';
+      const res = await auth.apiFetch('/receitas');
+      let lista = [];
+      if (res && res.receitas) lista = res.receitas;
+      else if (res && Array.isArray(res)) lista = res;
+      estado.receitas = lista.map(normalizarReceita);
+      statusEl.textContent = 'dados carregados';
     }catch(e){
-      statusEl.textContent = 'novo aqui — comece adicionando';
+      statusEl.textContent = 'erro ao carregar dados';
     }
     const elData = document.getElementById('receita-data');
     mascaraData(elData);
@@ -54,51 +60,50 @@
     renderizarReceitas();
   }
 
-  let temporizadorSalvar = null;
-  function salvarEstado(){
-    const statusEl = document.getElementById('status-salvamento');
-    statusEl.textContent = 'salvando...';
-    clearTimeout(temporizadorSalvar);
-    temporizadorSalvar = setTimeout(async ()=>{
-      try{
-        const payload = JSON.stringify(estado);
-        if(TEM_ARMAZENAMENTO_WIDGET){
-          await window.storage.set(CHAVE_ARMAZENAMENTO, payload);
-        } else {
-          localStorage.setItem(CHAVE_ARMAZENAMENTO, payload);
-        }
-        statusEl.textContent = 'tudo salvo';
-      }catch(e){
-        statusEl.textContent = 'erro ao salvar — tente novamente';
-      }
-    }, 300);
-  }
-
-  document.getElementById('receita-botao-adicionar').addEventListener('click', ()=>{
+  document.getElementById('receita-botao-adicionar').addEventListener('click', async ()=>{
     const desc = document.getElementById('receita-descricao').value.trim();
     const cat = document.getElementById('receita-categoria').value;
     const valor = parseFloat(document.getElementById('receita-valor').value);
     const data = converterDataParaISO(document.getElementById('receita-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
-    if(editandoId){
-      const idx = estado.receitas.findIndex(r => r.id === editandoId);
-      if(idx !== -1) estado.receitas[idx] = {id:editandoId, desc, cat, valor, data};
-      editandoId = null;
-      document.getElementById('receita-botao-adicionar').textContent = 'Adicionar receita';
-    } else {
-      estado.receitas.push({id:gerarId(), desc, cat, valor, data});
+    const statusEl = document.getElementById('status-salvamento');
+    try{
+      if(editandoId){
+        await auth.apiFetch('/receitas', {
+          method: 'PUT',
+          body: JSON.stringify({ id: editandoId, descricao: desc, categoria: cat, valor: valor, data: data })
+        });
+        editandoId = null;
+        document.getElementById('receita-botao-adicionar').textContent = 'Adicionar receita';
+        statusEl.textContent = 'salvo';
+      } else {
+        await auth.apiFetch('/receitas', {
+          method: 'POST',
+          body: JSON.stringify({ descricao: desc, categoria: cat, valor: valor, data: data })
+        });
+        statusEl.textContent = 'salvo';
+      }
+      document.getElementById('receita-descricao').value='';
+      document.getElementById('receita-valor').value='';
+      await carregarEstado();
+    }catch(e){
+      statusEl.textContent = 'erro ao salvar';
     }
-    document.getElementById('receita-descricao').value='';
-    document.getElementById('receita-valor').value='';
-    salvarEstado();
-    renderizarReceitas();
   });
 
-  function removerReceita(id){
-    estado.receitas = estado.receitas.filter(r=>r.id!==id);
-    if(editandoId === id){ editandoId = null; document.getElementById('receita-botao-adicionar').textContent = 'Adicionar receita'; }
-    salvarEstado();
-    renderizarReceitas();
+  async function removerReceita(id){
+    const statusEl = document.getElementById('status-salvamento');
+    try{
+      await auth.apiFetch('/receitas', {
+        method: 'DELETE',
+        body: JSON.stringify({ id: id })
+      });
+      if(editandoId === id){ editandoId = null; document.getElementById('receita-botao-adicionar').textContent = 'Adicionar receita'; }
+      statusEl.textContent = 'removido';
+      await carregarEstado();
+    }catch(e){
+      statusEl.textContent = 'erro ao remover';
+    }
   }
 
   function editarReceita(id){
