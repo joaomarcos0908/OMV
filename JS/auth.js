@@ -10,7 +10,7 @@
   function setUsuario(u) { localStorage.setItem(USUARIO_KEY, JSON.stringify(u)); }
   function clearUsuario() { localStorage.removeItem(USUARIO_KEY); }
   function isLoggedIn() { return !!getToken(); }
-  function logout() { clearToken(); clearUsuario(); }
+  function logout() { clearToken(); clearUsuario(); window.location.href = '/Html/login.html'; }
 
   async function apiFetch(path, options) {
     options = options || {};
@@ -18,12 +18,22 @@
     const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
     if (token) headers['Authorization'] = 'Bearer ' + token;
     const res = await fetch(API_BASE + path, Object.assign({}, options, { headers: headers }));
+    let data = null;
+    try { data = await res.json(); } catch(e) { data = {}; }
     if (res.status === 401) {
-      logout();
-      window.location.href = 'index.html';
-      return null;
+      clearToken(); clearUsuario();
+      if (!window.location.pathname.endsWith('/Html/login.html') && !window.location.pathname.endsWith('/login.html')) {
+        window.location.href = '/Html/login.html';
+        return null;
+      }
     }
-    return res.json();
+    if (!res.ok) {
+      const err = new Error((data && data.erro) || 'Erro na requisição');
+      err.status = res.status;
+      err.data = data;
+      throw err;
+    }
+    return data;
   }
 
   window.auth = {

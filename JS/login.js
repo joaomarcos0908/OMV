@@ -5,7 +5,7 @@
   const alertaCadastro = document.getElementById('alerta-cadastro');
 
   if (auth.isLoggedIn()) {
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
     return;
   }
 
@@ -55,10 +55,11 @@
       if (dados) {
         auth.setToken(dados.token);
         auth.setUsuario(dados.usuario);
-        window.location.href = 'index.html';
+        window.location.href = '/index.html';
       }
     } catch (err) {
-      mostrarAlerta(alertaLogin, 'Erro de conexão. Tente novamente.', 'erro');
+      const msg = (err && err.data && err.data.erro) || err.message || 'Erro de conexão. Tente novamente.';
+      mostrarAlerta(alertaLogin, msg, 'erro');
     } finally {
       botao.disabled = false;
       botao.textContent = 'Entrar';
@@ -98,7 +99,8 @@
         }, 2000);
       }
     } catch (err) {
-      mostrarAlerta(alertaCadastro, 'Erro de conexão. Tente novamente.', 'erro');
+      const msg = (err && err.data && err.data.erro) || err.message || 'Erro de conexão. Tente novamente.';
+      mostrarAlerta(alertaCadastro, msg, 'erro');
     } finally {
       botao.disabled = false;
       botao.textContent = 'Criar conta';
