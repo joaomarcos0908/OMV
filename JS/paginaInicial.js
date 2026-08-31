@@ -8,19 +8,24 @@
   };
 
   if (!auth.isLoggedIn()) {
-    window.location.href = 'index.html';
+    window.location.href = '/Html/login.html';
     return;
   }
+
+  function normalizarGasto(r){ return { id: r.id, desc: r.descricao || r.desc, cat: r.categoria || r.cat, valor: Number(r.valor), data: (r.data||'').slice(0,10), fixa: r.fixa ?? false }; }
+  function normalizarReceita(r){ return { id: r.id, desc: r.descricao || r.desc, cat: r.categoria || r.cat, valor: Number(r.valor), data: (r.data||'').slice(0,10) }; }
 
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
 
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      const gastosData = await auth.apiFetch('/api/gastos');
-      const receitasData = await auth.apiFetch('/api/receitas');
-      if (gastosData) estado.gastos = gastosData.gastos || [];
-      if (receitasData) estado.receitas = receitasData.receitas || [];
+      const gastosData = await auth.apiFetch('/gastos');
+      const receitasData = await auth.apiFetch('/receitas');
+      let listaG = gastosData && gastosData.gastos ? gastosData.gastos : Array.isArray(gastosData) ? gastosData : [];
+      let listaR = receitasData && receitasData.receitas ? receitasData.receitas : Array.isArray(receitasData) ? receitasData : [];
+      estado.gastos = listaG.map(normalizarGasto);
+      estado.receitas = listaR.map(normalizarReceita);
       statusEl.textContent = 'dados carregados';
     }catch(e){
       statusEl.textContent = 'erro ao carregar dados';

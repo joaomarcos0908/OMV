@@ -36,8 +36,19 @@
   };
 
   if (!auth.isLoggedIn()) {
-    window.location.href = 'index.html';
+    window.location.href = '/Html/login.html';
     return;
+  }
+
+  function normalizarGasto(r){
+    return {
+      id: r.id,
+      desc: r.descricao || r.desc,
+      cat: r.categoria || r.cat,
+      valor: Number(r.valor),
+      data: (r.data || '').slice(0,10),
+      fixa: r.fixa ?? false
+    };
   }
 
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
@@ -47,10 +58,11 @@
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      const res = await auth.apiFetch('/api/gastos');
-      if (res && res.gastos) {
-        estado.gastos = res.gastos;
-      }
+      const res = await auth.apiFetch('/gastos');
+      let lista = [];
+      if (res && res.gastos) lista = res.gastos;
+      else if (res && Array.isArray(res)) lista = res;
+      estado.gastos = lista.map(normalizarGasto);
       statusEl.textContent = 'dados carregados';
     }catch(e){
       statusEl.textContent = 'erro ao carregar dados';
@@ -72,7 +84,7 @@
 
     if(editandoId){
       try{
-        await auth.apiFetch('/api/gastos', {
+        await auth.apiFetch('/gastos', {
           method: 'PUT',
           body: JSON.stringify({ id: editandoId, descricao: desc, categoria: cat, valor: valor, data: data, fixa: fixa })
         });
@@ -84,7 +96,7 @@
       }
     } else {
       try{
-        await auth.apiFetch('/api/gastos', {
+        await auth.apiFetch('/gastos', {
           method: 'POST',
           body: JSON.stringify({ descricao: desc, categoria: cat, valor: valor, data: data, fixa: fixa })
         });
@@ -95,7 +107,7 @@
         statusEl.textContent = 'erro ao salvar';
       }
     }
-    renderizarGastos();
+    await carregarEstado();
   }
 
   document.getElementById('gasto-botao-adicionar').addEventListener('click', adicionarOuAtualizarGasto);
@@ -103,16 +115,16 @@
   async function removerGasto(id){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      await auth.apiFetch('/api/gastos', {
+      await auth.apiFetch('/gastos', {
         method: 'DELETE',
         body: JSON.stringify({ id: id })
       });
       if(editandoId === id){ editandoId = null; document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto'; }
       statusEl.textContent = 'removido';
+      await carregarEstado();
     }catch(e){
       statusEl.textContent = 'erro ao remover';
     }
-    renderizarGastos();
   }
 
   function editarGasto(id){
@@ -168,7 +180,7 @@
       const statusEl = document.getElementById('status-salvamento');
       statusEl.textContent = 'salvando...';
       for (const n of novosGastos) {
-        auth.apiFetch('/api/gastos', {
+        auth.apiFetch('/gastos', {
           method: 'POST',
           body: JSON.stringify({ descricao: n.desc, categoria: n.cat, valor: n.valor, data: n.data, fixa: true })
         }).catch(() => {});
