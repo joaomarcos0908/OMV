@@ -1,6 +1,6 @@
-const { query } = require('../lib/db');
-const { autenticar } = require('../lib/autenticar');
-const { textoValido, valorValido, dataISOValida, uuidValido } = require('../lib/validar');
+const { query } = require('./lib/db');
+const { autenticar } = require('./lib/autenticar');
+const { textoValido, valorValido, dataISOValida, uuidValido } = require('./lib/validar');
 
 async function handler(req, res) {
   autenticar(req, res, async () => {
