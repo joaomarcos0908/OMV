@@ -1,7 +1,6 @@
 (function(){
 
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  const gerarId = () => Math.random().toString(36).slice(2, 10);
   const escaparHtml = (s) => {
     const div = document.createElement('div');
     div.textContent = s;
@@ -25,72 +24,75 @@
     });
   }
 
+  if (!auth.isLoggedIn()) {
+    window.location.href = '/Html/login.html';
+    return;
+  }
+
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
-  const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
-  const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
+
+  function normalizarMeta(m){
+    return {
+      id: m.id,
+      nome: m.nome,
+      valorAlvo: Number(m.valor_alvo ?? m.valorAlvo ?? 0),
+      valorAtual: Number(m.valor_atual ?? m.valorAtual ?? 0),
+      dataLimite: (m.data_limite ?? m.dataLimite ?? '') ? String(m.data_limite ?? m.dataLimite).slice(0,10) : ''
+    };
+  }
 
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      let bruto = null;
-      if(TEM_ARMAZENAMENTO_WIDGET){
-        const res = await window.storage.get(CHAVE_ARMAZENAMENTO);
-        bruto = res && res.value;
-      } else {
-        bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
-      }
-      if(bruto){
-        const dados = JSON.parse(bruto);
-        estado = Object.assign({receitas:[],gastos:[],metas:[],investimentos:[]}, dados);
-      }
-      statusEl.textContent = 'dados salvos automaticamente';
+      const res = await auth.apiFetch('/metas');
+      let lista = [];
+      if (res && res.metas) lista = res.metas;
+      else if (res && Array.isArray(res)) lista = res;
+      estado.metas = lista.map(normalizarMeta);
+      statusEl.textContent = 'dados carregados';
     }catch(e){
-      statusEl.textContent = 'novo aqui — comece adicionando';
+      statusEl.textContent = 'erro ao carregar dados';
     }
     mascaraData(document.getElementById('meta-data-limite'));
     renderizarMetas();
   }
 
-  let temporizadorSalvar = null;
-  function salvarEstado(){
-    const statusEl = document.getElementById('status-salvamento');
-    statusEl.textContent = 'salvando...';
-    clearTimeout(temporizadorSalvar);
-    temporizadorSalvar = setTimeout(async ()=>{
-      try{
-        const payload = JSON.stringify(estado);
-        if(TEM_ARMAZENAMENTO_WIDGET){
-          await window.storage.set(CHAVE_ARMAZENAMENTO, payload);
-        } else {
-          localStorage.setItem(CHAVE_ARMAZENAMENTO, payload);
-        }
-        statusEl.textContent = 'tudo salvo';
-      }catch(e){
-        statusEl.textContent = 'erro ao salvar — tente novamente';
-      }
-    }, 300);
-  }
-
-  document.getElementById('meta-botao-adicionar').addEventListener('click', ()=>{
+  document.getElementById('meta-botao-adicionar').addEventListener('click', async ()=>{
     const nome = document.getElementById('meta-nome').value.trim();
     const valorAlvo = parseFloat(document.getElementById('meta-valor-alvo').value);
     const valorAtual = parseFloat(document.getElementById('meta-valor-atual').value) || 0;
     const dataLimite = converterDataParaISO(document.getElementById('meta-data-limite').value);
     if(!nome || !valorAlvo || valorAlvo<=0){ return; }
     if(dataLimite && dataLimite <= new Date().toISOString().slice(0,10)){ return; }
-    estado.metas.push({id:gerarId(), nome, valorAlvo, valorAtual, dataLimite});
-    document.getElementById('meta-nome').value='';
-    document.getElementById('meta-valor-alvo').value='';
-    document.getElementById('meta-valor-atual').value='';
-    document.getElementById('meta-data-limite').value='';
-    salvarEstado();
-    renderizarMetas();
+    const statusEl = document.getElementById('status-salvamento');
+    try{
+      await auth.apiFetch('/metas', {
+        method: 'POST',
+        body: JSON.stringify({ nome, valorAlvo, valorAtual, dataLimite: dataLimite || null })
+      });
+      document.getElementById('meta-nome').value='';
+      document.getElementById('meta-valor-alvo').value='';
+      document.getElementById('meta-valor-atual').value='';
+      document.getElementById('meta-data-limite').value='';
+      statusEl.textContent = 'salvo';
+      await carregarEstado();
+    }catch(e){
+      statusEl.textContent = 'erro ao salvar';
+    }
   });
 
-  function removerMeta(id){
-    estado.metas = estado.metas.filter(m=>m.id!==id);
-    salvarEstado();
-    renderizarMetas();
+  async function removerMeta(id){
+    const statusEl = document.getElementById('status-salvamento');
+    try{
+      await auth.apiFetch('/metas', {
+        method: 'DELETE',
+        body: JSON.stringify({ id })
+      });
+      statusEl.textContent = 'removido';
+      await carregarEstado();
+    }catch(e){
+      statusEl.textContent = 'erro ao remover';
+    }
   }
 
   function renderizarMetas(){

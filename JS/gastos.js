@@ -1,8 +1,7 @@
 (function(){
- 
+
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   const formatarPercentual = (v) => (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
-  const gerarId = () => Math.random().toString(36).slice(2, 10);
   const escaparHtml = (s) => {
     const div = document.createElement('div');
     div.textContent = s;
@@ -35,85 +34,97 @@
     'Moradia':'#3F5C78','Alimentação':'#9C6F1F','Transporte':'#1F6F54','Lazer':'#B2492E',
     'Saúde':'#6E4F9E','Educação':'#2E7D8F','Outros':'#8A8775'
   };
- 
-  // ---------- estado compartilhado (mesma chave usada por todas as páginas) ----------
+
+  if (!auth.isLoggedIn()) {
+    window.location.href = '/Html/login.html';
+    return;
+  }
+
+  function normalizarGasto(r){
+    return {
+      id: r.id,
+      desc: r.descricao || r.desc,
+      cat: r.categoria || r.cat,
+      valor: Number(r.valor),
+      data: (r.data || '').slice(0,10),
+      fixa: r.fixa ?? false
+    };
+  }
+
   let estado = { receitas:[], gastos:[], metas:[], investimentos:[] };
   let graficoCategorias = null;
   let editandoId = null;
-  const CHAVE_ARMAZENAMENTO = 'organizador-financeiro-data';
-  const TEM_ARMAZENAMENTO_WIDGET = typeof window !== 'undefined' && !!window.storage;
- 
+
   async function carregarEstado(){
     const statusEl = document.getElementById('status-salvamento');
     try{
-      let bruto = null;
-      if(TEM_ARMAZENAMENTO_WIDGET){
-        const res = await window.storage.get(CHAVE_ARMAZENAMENTO);
-        bruto = res && res.value;
-      } else {
-        bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
-      }
-      if(bruto){
-        const dados = JSON.parse(bruto);
-        estado = Object.assign({receitas:[],gastos:[],metas:[],investimentos:[]}, dados);
-      }
-      statusEl.textContent = 'dados salvos automaticamente';
+      const res = await auth.apiFetch('/gastos');
+      let lista = [];
+      if (res && res.gastos) lista = res.gastos;
+      else if (res && Array.isArray(res)) lista = res;
+      estado.gastos = lista.map(normalizarGasto);
+      statusEl.textContent = 'dados carregados';
     }catch(e){
-      statusEl.textContent = 'novo aqui — comece adicionando';
+      statusEl.textContent = 'erro ao carregar dados';
     }
     const elData = document.getElementById('gasto-data');
     mascaraData(elData);
     elData.value = formatarDataInput(new Date().toISOString().slice(0,10));
     renderizarGastos();
   }
- 
-  let temporizadorSalvar = null;
-  function salvarEstado(){
-    const statusEl = document.getElementById('status-salvamento');
-    statusEl.textContent = 'salvando...';
-    clearTimeout(temporizadorSalvar);
-    temporizadorSalvar = setTimeout(async ()=>{
-      try{
-        const payload = JSON.stringify(estado);
-        if(TEM_ARMAZENAMENTO_WIDGET){
-          await window.storage.set(CHAVE_ARMAZENAMENTO, payload);
-        } else {
-          localStorage.setItem(CHAVE_ARMAZENAMENTO, payload);
-        }
-        statusEl.textContent = 'tudo salvo';
-      }catch(e){
-        statusEl.textContent = 'erro ao salvar — tente novamente';
-      }
-    }, 300);
-  }
- 
-  // ---------- gastos ----------
-  document.getElementById('gasto-botao-adicionar').addEventListener('click', ()=>{
+
+  async function adicionarOuAtualizarGasto(){
     const desc = document.getElementById('gasto-descricao').value.trim();
     const cat = document.getElementById('gasto-categoria').value;
     const valor = parseFloat(document.getElementById('gasto-valor').value);
     const data = converterDataParaISO(document.getElementById('gasto-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
     const fixa = document.getElementById('gasto-fixa').checked;
+    const statusEl = document.getElementById('status-salvamento');
+
     if(editandoId){
-      const idx = estado.gastos.findIndex(g => g.id === editandoId);
-      if(idx !== -1) estado.gastos[idx] = {id:editandoId, desc, cat, valor, data, fixa};
-      editandoId = null;
-      document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto';
+      try{
+        await auth.apiFetch('/gastos', {
+          method: 'PUT',
+          body: JSON.stringify({ id: editandoId, descricao: desc, categoria: cat, valor: valor, data: data, fixa: fixa })
+        });
+        editandoId = null;
+        document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto';
+        statusEl.textContent = 'salvo';
+      }catch(e){
+        statusEl.textContent = 'erro ao salvar';
+      }
     } else {
-      estado.gastos.push({id:gerarId(), desc, cat, valor, data, fixa});
+      try{
+        await auth.apiFetch('/gastos', {
+          method: 'POST',
+          body: JSON.stringify({ descricao: desc, categoria: cat, valor: valor, data: data, fixa: fixa })
+        });
+        document.getElementById('gasto-descricao').value='';
+        document.getElementById('gasto-valor').value='';
+        statusEl.textContent = 'salvo';
+      }catch(e){
+        statusEl.textContent = 'erro ao salvar';
+      }
     }
-    document.getElementById('gasto-descricao').value='';
-    document.getElementById('gasto-valor').value='';
-    salvarEstado();
-    renderizarGastos();
-  });
- 
-  function removerGasto(id){
-    estado.gastos = estado.gastos.filter(g=>g.id!==id);
-    if(editandoId === id){ editandoId = null; document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto'; }
-    salvarEstado();
-    renderizarGastos();
+    await carregarEstado();
+  }
+
+  document.getElementById('gasto-botao-adicionar').addEventListener('click', adicionarOuAtualizarGasto);
+
+  async function removerGasto(id){
+    const statusEl = document.getElementById('status-salvamento');
+    try{
+      await auth.apiFetch('/gastos', {
+        method: 'DELETE',
+        body: JSON.stringify({ id: id })
+      });
+      if(editandoId === id){ editandoId = null; document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto'; }
+      statusEl.textContent = 'removido';
+      await carregarEstado();
+    }catch(e){
+      statusEl.textContent = 'erro ao remover';
+    }
   }
 
   function editarGasto(id){
@@ -128,8 +139,8 @@
     document.getElementById('gasto-botao-adicionar').textContent = 'Salvar alteração';
     window.scrollTo({top:0, behavior:'smooth'});
   }
- 
-  function renderizarFiltroMes(){
+
+  async function renderizarFiltroMes(){
     const select = document.getElementById('gasto-filtro-mes');
     const anterior = select.value;
     const conjuntoMeses = new Set(estado.gastos.map(g=> g.data.slice(0,7)));
@@ -139,7 +150,7 @@
     select.value = meses.includes(anterior) ? anterior : chaveMesAtual();
   }
   document.getElementById('gasto-filtro-mes').addEventListener('change', renderizarGastos);
- 
+
   function autoPopularFixas(mesSelecionado){
     const mesesComDados = [...new Set(estado.gastos.map(g => g.data.slice(0,7)))].sort();
     const mesAnterior = mesesComDados.filter(m => m < mesSelecionado).pop();
@@ -153,21 +164,36 @@
     );
 
     let adicionou = false;
-    fixasAnteriores.forEach(g => {
+    const novosGastos = [];
+    for (const g of fixasAnteriores) {
       if (!descricoesExistentes.has(g.desc)) {
-        estado.gastos.push({
+        const novo = {
           id: gerarId(), desc: g.desc, cat: g.cat,
           valor: g.valor, data: mesSelecionado + '-01', fixa: true
-        });
+        };
+        estado.gastos.push(novo);
+        novosGastos.push(novo);
         adicionou = true;
       }
-    });
-
-    if (adicionou) salvarEstado();
+    }
+    if (adicionou) {
+      const statusEl = document.getElementById('status-salvamento');
+      statusEl.textContent = 'salvando...';
+      for (const n of novosGastos) {
+        auth.apiFetch('/gastos', {
+          method: 'POST',
+          body: JSON.stringify({ descricao: n.desc, categoria: n.cat, valor: n.valor, data: n.data, fixa: true })
+        }).catch(() => {});
+      }
+      statusEl.textContent = 'tudo salvo';
+      renderizarGastos();
+    }
   }
 
-  function renderizarGastos(){
-    renderizarFiltroMes();
+  function gerarId() { return Math.random().toString(36).slice(2, 10); }
+
+  async function renderizarGastos(){
+    await renderizarFiltroMes();
     const mesSelecionado = document.getElementById('gasto-filtro-mes').value;
     autoPopularFixas(mesSelecionado);
     const gastosDoMes = estado.gastos.filter(g => g.data.slice(0,7) === mesSelecionado);
@@ -197,23 +223,23 @@
     }
     renderizarGraficoCategorias(gastosDoMes);
   }
- 
+
   function renderizarGraficoCategorias(gastosDoMes){
     const porCategoria={};
     gastosDoMes.forEach(g=> porCategoria[g.cat]=(porCategoria[g.cat]||0)+g.valor);
     const rotulos = Object.keys(porCategoria);
     const dados = Object.values(porCategoria);
     const cores = rotulos.map(l=>CORES_CATEGORIA[l]||'#8A8775');
-  
+
     const ctx = document.getElementById('grafico-categorias');
     if(graficoCategorias) graficoCategorias.destroy();
-  
+
     const legenda = document.getElementById('legenda-categorias');
     if(rotulos.length===0){
       legenda.innerHTML = '<span style="font-style:italic; color:var(--tinta-fraca);">Nenhum gasto neste mês ainda</span>';
       return;
     }
-  
+
     graficoCategorias = new Chart(ctx, {
       type:'doughnut',
       data:{
@@ -244,15 +270,14 @@
         animation:{ animateRotate:true, duration:500 }
       }
     });
-  
+
     const total = dados.reduce((a,b)=>a+b,0);
     legenda.innerHTML = rotulos.map((l,i)=>{
       const pct = total? (dados[i]/total*100):0;
       return `<span><span class="ponto-legenda" style="background:${cores[i]}"></span>${l} ${formatarPercentual(pct)}</span>`;
     }).join('');
   }
- 
+
   carregarEstado();
- 
+
 })();
- 

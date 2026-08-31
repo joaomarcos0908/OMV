@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OMV - Organiza Minha Vida</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Serif+4:wght@600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../CSS/estilosPagPrincipal.css" />
+    <link rel="stylesheet" href="../CSS/estilosLogin.css" />
+  </head>
+  <body>
+    <div class="aplicativo">
+      <header class="cabecalho-topo">
+        <span class="marca-eyebrow">livro-caixa pessoal</span>
+        <h1>OMV<br />Organiza Minha Vida</h1>
+      </header>
+      <div class="cartao-tech login-card">
+        <div id="alerta-login" class="alerta erro"></div>
+        <div id="login-tab" class="tab ativo">
+          <h2>Bem-vindo de volta</h2>
+          <div class="campo">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="seu@email.com" />
+          </div>
+          <div class="campo">
+            <label>Senha</label>
+            <input type="password" id="login-senha" placeholder="Sua senha" />
+          </div>
+          <button class="btn-login" id="login-botao">Entrar</button>
+          <div class="form-footer">
+            <span class="texto-ajuda-login">Primeiro acesso?</span>
+            <button class="link-cadastro" id="link-cadastro">Criar conta</button>
+          </div>
+        </div>
+        <div id="cadastro-tab" class="tab">
+          <h2>Criar conta</h2>
+          <div class="alerta" id="alerta-cadastro"></div>
+          <div class="campo">
+            <label>Nome</label>
+            <input type="text" id="cadastro-nome" placeholder="Seu nome" />
+          </div>
+          <div class="campo">
+            <label>Email</label>
+            <input type="email" id="cadastro-email" placeholder="seu@email.com" />
+          </div>
+          <div class="campo">
+            <label>Senha</label>
+            <input type="password" id="cadastro-senha" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <button class="btn-login" id="cadastro-botao">Criar conta</button>
+          <div class="form-footer">
+            <span></span>
+            <button class="link-cadastro" id="link-login">Voltar para login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../JS/auth.js"></script>
+    <script src="../JS/login.js"></script>
+  </body>
+</html>
