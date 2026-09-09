@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,36 +7,177 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Serif+4:wght@600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="CSS/estilosPagPrincipal.css" />
+    <link rel="stylesheet" href="CSS/estilosPagSecundarias.css" />
   </head>
   <body>
     <div class="aplicativo">
       <header class="cabecalho-topo">
-        <span class="marca-eyebrow">livro-caixa pessoal</span>
-        <h1>OMV<br />Organiza Minha Vida</h1>
+        <div>
+          <span class="marca-eyebrow">livro-caixa pessoal</span>
+          <h1>OMV-Organiza Minha Vida</h1>
+        </div>
+        <nav class="menu-abas" aria-label="Navegação principal">
+          <a class="aba-botao ativo" aria-current="page">Início</a>
+          <a class="aba-botao" href="Html/investimentos.html">Investimentos</a>
+          <a class="aba-botao" href="Html/metas.html">Metas</a>
+        </nav>
+        <button id="botao-sair" class="botao-voltar" onclick="auth.logout()">Sair</button>
         <span class="status-salvamento" id="status-salvamento">carregando...</span>
-        <button id="botao-sair" class="botao-voltar" onclick="auth.logout()" style="margin-left:auto;">Sair</button>
       </header>
 
-      <div class="cartao-tech">
-        <h2>Resumo Mensal</h2>
+      <div class="cartao">
+        <div class="cartao-cabecalho">
+          <h2>Resumo Mensal</h2>
+          <div class="campo campo-media" style="margin: 0">
+            <label>Mês</label>
+            <select id="filtro-mes"></select>
+          </div>
+        </div>
+        <div class="grade-indicadores" id="resumo-indicadores"></div>
+      </div>
 
-        <div class="campo" style="max-width:190px; margin-left:auto; margin-right:auto;">
-          <label>Mês</label>
-          <select id="resumo-filtro-mes"></select>
+      <section id="receitas">
+        <div class="cartao">
+          <h2>Nova receita</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label>Descrição</label>
+              <input type="text" id="receita-descricao" placeholder="Ex: Salário" />
+            </div>
+            <div class="campo">
+              <label>Categoria</label>
+              <select id="receita-categoria">
+                <option>Salário</option>
+                <option>Estágio</option>
+                <option>Freelance</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="campo campo-estreita">
+              <label>Valor (R$)</label>
+              <input type="number" id="receita-valor" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="campo campo-media">
+              <label>Data</label>
+              <input type="text" id="receita-data" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" />
+            </div>
+          </div>
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="receita-botao-adicionar">Adicionar receita</button>
+          </div>
         </div>
 
-        <div class="grade-indicadores" id="resumo-indicadores"></div>
+        <div class="cartao">
+          <h2>Lançamentos</h2>
+          <div class="tabela-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th class="numero">Valor</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="receita-tabela-corpo"></tbody>
+            </table>
+          </div>
+        </div>
 
-        <nav class="botoes">
-          <a href="Html/gastos.html" class="botao">Gastos</a>
-          <a href="Html/receitas.html" class="botao">Receitas</a>
-          <a href="Html/metas.html" class="botao">Metas</a>
-          <a href="Html/investimentos.html" class="botao">Investimentos</a>
-        </nav>
-      </div>
+        <div class="cartao">
+          <h2>Distribuição por categoria (mês selecionado)</h2>
+          <div style="position: relative; height: 240px">
+            <canvas
+              id="grafico-receitas"
+              role="img"
+              aria-label="Gráfico de pizza mostrando a distribuição das receitas por categoria"
+            ></canvas>
+          </div>
+          <div class="legenda" id="legenda-receitas"></div>
+        </div>
+      </section>
+
+      <section id="gastos">
+        <div class="cartao">
+          <h2>Novo lançamento</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label>Descrição</label>
+              <input type="text" id="gasto-descricao" placeholder="Ex: Supermercado" />
+            </div>
+            <div class="campo">
+              <label>Categoria</label>
+              <select id="gasto-categoria">
+                <option>Moradia</option>
+                <option>Alimentação</option>
+                <option>Transporte</option>
+                <option>Lazer</option>
+                <option>Saúde</option>
+                <option>Educação</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="campo campo-estreita">
+              <label>Tipo</label>
+              <div class="grupo-radio">
+                <label class="radio-opcao">
+                  <input type="radio" name="gasto-tipo" id="gasto-variavel" value="variavel" checked />
+                  <span>Variável</span>
+                </label>
+                <label class="radio-opcao">
+                  <input type="radio" name="gasto-tipo" id="gasto-fixa" value="fixa" />
+                  <span>Fixa</span>
+                </label>
+              </div>
+            </div>
+            <div class="campo campo-estreita">
+              <label>Valor (R$)</label>
+              <input type="number" id="gasto-valor" step="0.01" placeholder="0,00" />
+            </div>
+            <div class="campo campo-media">
+              <label>Data</label>
+              <input type="text" id="gasto-data" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" />
+            </div>
+          </div>
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="gasto-botao-adicionar">Adicionar gasto</button>
+          </div>
+        </div>
+
+        <div class="cartao">
+          <h2>Lançamentos</h2>
+          <div class="tabela-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th class="numero">Valor</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="gasto-tabela-corpo"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cartao">
+          <h2>Distribuição por categoria (mês selecionado)</h2>
+          <div style="position: relative; height: 240px">
+            <canvas
+              id="grafico-gastos"
+              role="img"
+              aria-label="Gráfico de pizza mostrando a distribuição dos gastos por categoria"
+            ></canvas>
+          </div>
+          <div class="legenda" id="legenda-gastos"></div>
+        </div>
+      </section>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
     <script src="JS/auth.js"></script>
-    <script src="JS/paginaInicial.js"></script>
+    <script src="JS/principal.js"></script>
   </body>
 </html>
