@@ -19,9 +19,9 @@
   --azul-aco-suave: #E2E8EE;
   --raio: 8px;
   --raio-pequeno: 4px;
-  --fonte-titulo: 'Oxygen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --fonte-corpo: 'Oxygen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --fonte-dados: 'Oxygen', 'SFMono-Regular', Consolas, monospace;
+  --fonte-titulo: 'Oxygen', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --fonte-corpo: 'Noto Sans', 'Oxygen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --fonte-dados: 'Noto Sans Mono', 'Oxygen', 'SFMono-Regular', Consolas, monospace;
 
   --fundo-escuro: #080d1a;
   --fundo-card: rgba(255, 255, 255, 0.04);

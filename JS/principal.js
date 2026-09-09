@@ -294,8 +294,8 @@
           legend:{ display:false },
           tooltip:{
             backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Oxygen, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'Oxygen, monospace', size:13 },
+            titleFont:{ family:'Noto Sans, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'Noto Sans Mono, monospace', size:13 },
             padding:12, cornerRadius:8, displayColors:true,
             callbacks:{
               label:(ctx)=>{
@@ -435,8 +435,8 @@
           legend:{ display:false },
           tooltip:{
             backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Oxygen, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'Oxygen, monospace', size:13 },
+            titleFont:{ family:'Noto Sans, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'Noto Sans Mono, monospace', size:13 },
             padding:12, cornerRadius:8, displayColors:true,
             callbacks:{
               label:(ctx)=>{
