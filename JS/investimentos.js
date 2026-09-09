@@ -590,7 +590,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escaparHtml(i.nome)}${auto ? ' <span class="selo-cotacao automatica">auto</span>' : ' <span class="selo-cotacao manual">manual</span>'}</td>
-        <td><span class="etiqueta">${i.tipo}</span></td>
+        <td><span class="etiqueta" style="background:${CORES_TIPO[i.tipo] || '#8A8775'}26; color:${CORES_TIPO[i.tipo] || '#8A8775'}">${i.tipo}</span></td>
         <td class="numero">${formatarMoeda(investido)}</td>
         <td class="numero">${formatarMoeda(atual)}</td>
         <td class="numero" style="color:${retorno >= 0 ? 'var(--esmeralda-texto)' : 'var(--terracota-texto)'}">${formatarMoeda(retorno)} (${formatarPercentual(retornoPct)})</td>
@@ -639,8 +639,8 @@
           legend:{ display:false },
           tooltip:{
             backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            titleFont:{ family:'Oxygen, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'Oxygen, monospace', size:13 },
             padding:12, cornerRadius:8, displayColors:true,
             callbacks:{
               label:(ctx)=>{
@@ -690,8 +690,8 @@
           legend:{ display:false },
           tooltip:{
             backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            titleFont:{ family:'Oxygen, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'Oxygen, monospace', size:13 },
             padding:12, cornerRadius:8,
             callbacks:{ label:(ctx) => formatarPercentual(ctx.raw) }
           }
@@ -702,7 +702,7 @@
             grid:{ color:'rgba(0,0,0,0.06)', drawBorder:false },
             ticks:{
               callback:(v) => v+'%',
-              font:{ family:'IBM Plex Mono, monospace', size:11 },
+              font:{ family:'Oxygen, monospace', size:11 },
               color:'#93927F'
             }
           },
@@ -710,7 +710,7 @@
             grid:{ display:false },
             ticks:{
               maxRotation:45,
-              font:{ family:'Inter, sans-serif', size:11 },
+              font:{ family:'Oxygen, sans-serif', size:11 },
               color:'#4D5A78'
             }
           }

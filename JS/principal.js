@@ -248,7 +248,7 @@
         tr.innerHTML = `
           <td>${formatarDataBR(g.data)}</td>
           <td>${escaparHtml(g.desc)}${g.fixa ? ' <span class="etiqueta etiqueta-fixa">Fixa</span>' : ''}</td>
-          <td><span class="etiqueta">${g.cat}</span></td>
+          <td><span class="etiqueta" style="background:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}">${g.cat}</span></td>
           <td class="numero">${formatarMoeda(g.valor)}</td>
           <td style="text-align:right;">
             <button class="botao-secundario" data-editar="${g.id}">editar</button>
@@ -294,8 +294,8 @@
           legend:{ display:false },
           tooltip:{
             backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            titleFont:{ family:'Oxygen, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'Oxygen, monospace', size:13 },
             padding:12, cornerRadius:8, displayColors:true,
             callbacks:{
               label:(ctx)=>{
@@ -389,7 +389,7 @@
         tr.innerHTML = `
           <td>${formatarDataBR(r.data)}</td>
           <td>${escaparHtml(r.desc)}</td>
-          <td><span class="etiqueta">${r.cat}</span></td>
+          <td><span class="etiqueta" style="background:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}">${r.cat}</span></td>
           <td class="numero">${formatarMoeda(r.valor)}</td>
           <td style="text-align:right;">
             <button class="botao-secundario" data-editar="${r.id}">editar</button>
@@ -435,8 +435,8 @@
           legend:{ display:false },
           tooltip:{
             backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Inter, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'IBM Plex Mono, monospace', size:13 },
+            titleFont:{ family:'Oxygen, sans-serif', size:12, weight:'600' },
+            bodyFont:{ family:'Oxygen, monospace', size:13 },
             padding:12, cornerRadius:8, displayColors:true,
             callbacks:{
               label:(ctx)=>{
