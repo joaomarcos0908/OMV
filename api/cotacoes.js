@@ -32,17 +32,26 @@ const CRYPTO_MAP = {
 };
 
 const cacheCotacao = new Map();
+const inflightCotacao = new Map();
 let cacheDolar = { valor: null, expiraEm: 0 };
 let inflightDolar = null;
 
-function comCache(chave, expiraEm, calcular) {
-  const agora = Date.now();
+// TTL conta a partir da resolução, não do pedido: uma resposta lenta do Yahoo
+// não pode consumir a janela de cache antes de devolver o valor. O inflight
+// evita que N chamadas simultâneas do mesmo ticker virem N requisições.
+function comCache(chave, calcular) {
   const guardado = cacheCotacao.get(chave);
-  if (guardado && guardado.expiraEm > agora) return guardado.valor;
-  return calcular().then((valor) => {
-    cacheCotacao.set(chave, { valor, expiraEm: agora + CACHE_TTL_MS });
-    return valor;
-  });
+  if (guardado && guardado.expiraEm > Date.now()) return Promise.resolve(guardado.valor);
+  if (inflightCotacao.has(chave)) return inflightCotacao.get(chave);
+  const promessa = Promise.resolve()
+    .then(calcular)
+    .then((valor) => {
+      cacheCotacao.set(chave, { valor, expiraEm: Date.now() + CACHE_TTL_MS });
+      return valor;
+    })
+    .finally(() => inflightCotacao.delete(chave));
+  inflightCotacao.set(chave, promessa);
+  return promessa;
 }
 
 async function buscarDolar() {
@@ -155,7 +164,7 @@ async function precoCoinGecko(nome) {
 
 async function buscarCotacao(nome, tipo) {
   const chave = `${tipo}|${String(nome).toUpperCase().trim()}`;
-  return comCache(chave, Date.now() + CACHE_TTL_MS, async () => {
+  return comCache(chave, async () => {
     const viaYahoo = await precoYahoo(nome, tipo);
     if (viaYahoo) return viaYahoo;
     if (tipo === 'Criptomoedas') return precoCoinGecko(nome);
@@ -163,13 +172,38 @@ async function buscarCotacao(nome, tipo) {
   });
 }
 
+// A Vercel popula req.query nas functions /api, mas nenhum outro endpoint deste
+// projeto usa query string (todos são POST com req.body), então não há
+// precedente testado aqui. Parsear req.url como fallback deixa o endpoint
+// funcionando independente de como o runtime populate a requisição.
+function queryDe(req) {
+  if (req.query && typeof req.query === 'object') return req.query;
+  const q = String(req.url || '').split('?')[1];
+  if (!q) return {};
+  const saida = {};
+  for (const par of q.split('&')) {
+    if (!par) continue;
+    const i = par.indexOf('=');
+    const chave = i < 0 ? par : par.slice(0, i);
+    let valor = i < 0 ? '' : par.slice(i + 1);
+    try {
+      valor = decodeURIComponent(valor.replace(/\+/g, ' '));
+    } catch (err) {
+      valor = '';
+    }
+    saida[chave] = valor;
+  }
+  return saida;
+}
+
 function parseAtivos(req) {
-  const brutos = String((req.query && req.query.ativos) || '')
+  const q = queryDe(req);
+  const brutos = String(q.ativos || '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, MAX_ATIVOS);
-  const tipos = String((req.query && req.query.tipos) || '')
+  const tipos = String(q.tipos || '')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
