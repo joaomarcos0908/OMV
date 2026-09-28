@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { query } = require('../lib/db');
-const { checkRateLimit } = require('../lib/rateLimit');
-const { emailValido, normalizarEmail } = require('../lib/validar');
+const { query } = require('../_lib/db');
+const { checkRateLimit } = require('../_lib/rateLimit');
+const { emailValido, normalizarEmail } = require('../_lib/validar');
 
 async function handler(req, res) {
   if (req.method !== 'POST') {

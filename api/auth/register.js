@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
-const { query } = require('../lib/db');
-const { checkRateLimit } = require('../lib/rateLimit');
-const { emailValido, textoValido, normalizarEmail } = require('../lib/validar');
+const { query } = require('../_lib/db');
+const { checkRateLimit } = require('../_lib/rateLimit');
+const { emailValido, textoValido, normalizarEmail } = require('../_lib/validar');
 
 async function handler(req, res) {
   if (req.method !== 'POST') {

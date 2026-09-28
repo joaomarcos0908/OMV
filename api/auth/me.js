@@ -1,5 +1,5 @@
-const { query } = require('../lib/db');
-const { autenticar } = require('../lib/autenticar');
+const { query } = require('../_lib/db');
+const { autenticar } = require('../_lib/autenticar');
 
 async function handler(req, res) {
   if (req.method !== 'GET') {
