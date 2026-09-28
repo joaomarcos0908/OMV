@@ -691,7 +691,7 @@
     if(ativos.length === 0) return;
     const nomes = ativos.map(i => i.nome);
     const retornos = ativos.map(i => calcularRetorno(i).retornoPct);
-    const cores = retornos.map(r => r >= 0 ? '#26A69A' : '#EF5350');
+    const cores = retornos.map(r => r >= 0 ? '#3DD68C' : '#F2555A');
     graficoRetorno = new Chart(ctx, {
       type:'bar',
       data:{
@@ -722,11 +722,11 @@
         scales:{
           y:{
             beginAtZero:true,
-            grid:{ color:'#2A2E39', drawBorder:false },
+            grid:{ color:'#23272E', drawBorder:false },
             ticks:{
               callback:(v) => v+'%',
               font:{ family:"'Inter', sans-serif", size:11 },
-              color:'#787B86'
+              color:'#9AA0A8'
             }
           },
           x:{
@@ -734,7 +734,7 @@
             ticks:{
               maxRotation:45,
               font:{ family:"'Inter', sans-serif", size:11 },
-              color:'#787B86'
+              color:'#9AA0A8'
             }
           }
         },
