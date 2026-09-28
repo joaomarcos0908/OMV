@@ -25,32 +25,52 @@
     });
   }
 
+  const parseDecimal = (v) => {
+    if(typeof v === 'number') return v;
+    let s = String(v == null ? '' : v).trim().replace(/[R$\s ]/g, '');
+    if(!s) return NaN;
+    if(s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    s = s.replace(/[^\d.-]/g, '');
+    if(!s || s === '-' || s === '.' || s === '-.') return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  };
+
+  function mascaraMoeda(el){
+    el.addEventListener('input', function(){
+      const cursorNoFim = this.selectionStart === this.value.length;
+      const n = parseDecimal(this.value);
+      this.value = Number.isFinite(n)
+        ? n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })
+        : '';
+      if(cursorNoFim){
+        const l = this.value.length;
+        this.setSelectionRange(l, l);
+      }
+    });
+  }
+
+  const ICONE_BASE = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+  const ICONES = {
+    atualizar: '<svg ' + ICONE_BASE + '><path d="M20.5 12a8.5 8.5 0 1 1-2.49-6.01"/><polyline points="20.5 3 20.5 8.5 15 8.5"/></svg>',
+    editar: '<svg ' + ICONE_BASE + '><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    remover: '<svg ' + ICONE_BASE + '><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+  };
+
   if (!auth.isLoggedIn()) {
     window.location.href = '/Html/login.html';
     return;
   }
 
-  const CRYPTO_MAP = {
-    'BTC':'bitcoin','ETH':'ethereum','SOL':'solana','DOGE':'dogecoin','XRP':'ripple',
-    'ADA':'cardano','DOT':'polkadot','MATIC':'matic-network','LINK':'chainlink',
-    'UNI':'uniswap','AVAX':'avalanche-2','ATOM':'cosmos','LTC':'litecoin',
-    'BCH':'bitcoin-cash','XLM':'stellar','TRX':'tron','FIL':'filecoin',
-    'APT':'aptos','ARB':'arbitrum','OP':'optimism','PEPE':'pepe',
-    'SHIB':'shiba-inu','SUI':'sui','NEAR':'near','AAVE':'aave','AXS':'axie-infinity',
-    'SAND':'the-sandbox','MANA':'decentraland','FTM':'fantom','ALGO':'algorand',
-    'VET':'vechain','EGLD':'elrond-erd-2','THETA':'theta-token','HNT':'helium',
-    'ICP':'internet-computer','RUNE':'thorchain','CRV':'curve-dao-token',
-    'MKR':'maker','COMP':'compound','YFI':'yearn-finance','SNX':'havven',
-    'SUSHI':'sushi','CAKE':'pancakeswap','KSM':'kusama','ZEC':'zcash',
-    'DASH':'dash','XMR':'monero','EOS':'eos','BNB':'binancecoin',
-    'WBTC':'wrapped-bitcoin','DAI':'dai','USDC':'usd-coin','USDT':'tether',
-    'TUSD':'true-usd','BUSD':'binance-usd','QNT':'quant-network',
-    'CHZ':'chiliz','ENJ':'enjincoin','BAT':'basic-attention-token',
-    'ZIL':'zilliqa','WAVES':'waves','XTZ':'tezos','HBAR':'hedera-hashgraph',
-    'FLOW':'flow','MINA':'mina-protocol','ROSE':'oasis-network',
-    'STX':'blockstack','FET':'fetch-ai','GRT':'the-graph','OCEAN':'ocean-protocol',
-    'BAL':'balancer','1INCH':'1inch','DYDX':'dydx','GALA':'gala',
-    'ILV':'illuvium','ALPHA':'alpha-finance'
+  const CRYPTO_CONHECIDOS = {
+    BTC:1, ETH:1, SOL:1, DOGE:1, XRP:1, ADA:1, DOT:1, MATIC:1, LINK:1, UNI:1,
+    AVAX:1, ATOM:1, LTC:1, BCH:1, XLM:1, TRX:1, FIL:1, APT:1, ARB:1, OP:1,
+    PEPE:1, SHIB:1, SUI:1, NEAR:1, AAVE:1, AXS:1, SAND:1, MANA:1, FTM:1,
+    ALGO:1, VET:1, EGLD:1, THETA:1, HNT:1, ICP:1, RUNE:1, CRV:1, MKR:1,
+    COMP:1, YFI:1, SNX:1, SUSHI:1, CAKE:1, KSM:1, ZEC:1, DASH:1, XMR:1,
+    EOS:1, BNB:1, WBTC:1, DAI:1, USDC:1, USDT:1, TUSD:1, BUSD:1, QNT:1,
+    CHZ:1, ENJ:1, BAT:1, ZIL:1, WAVES:1, XTZ:1, HBAR:1, FLOW:1, MINA:1,
+    ROSE:1, STX:1, FET:1, GRT:1, OCEAN:1, BAL:1, DYDX:1, GALA:1, ILV:1
   };
 
   const CORES_TIPO = {
@@ -124,34 +144,47 @@
   async function atualizarTodasCotacoes(){
     if(atualizando) return;
     atualizando = true;
-    const temRendaFixa = estado.investimentos.some(i => i.tipo === 'Renda Fixa' || i.tipo === 'Tesouro Direto');
-    const temApi = estado.investimentos.some(i => i.tipo !== 'Renda Fixa' && i.tipo !== 'Tesouro Direto' && i.quantidade != null);
-    if(!temRendaFixa && !temApi){ atualizando = false; return; }
-    const statusEl = document.getElementById('status-salvamento');
-    statusEl.textContent = 'atualizando cotações...';
-    for(const inv of estado.investimentos){
-      if(inv.tipo === 'Renda Fixa' || inv.tipo === 'Tesouro Direto'){
-        const valor = await atualizarCotacaoRendaFixa(inv);
-        if(valor != null && valor > 0){
+    try{
+      const statusEl = document.getElementById('status-salvamento');
+      const temRendaFixa = estado.investimentos.some(i => i.tipo === 'Renda Fixa' || i.tipo === 'Tesouro Direto');
+      const temApi = estado.investimentos.some(i => TIPOS_COM_COTACAO.includes(i.tipo) && i.quantidade != null);
+      if(!temRendaFixa && !temApi) return;
+
+      statusEl.textContent = 'atualizando cotações...';
+      const hoje = new Date().toISOString().slice(0, 10);
+
+      const cotações = await buscarCotacoesEmLote(estado.investimentos);
+      const atualizados = await Promise.all(estado.investimentos.map(async (inv) => {
+        if(inv.tipo === 'Renda Fixa' || inv.tipo === 'Tesouro Direto'){
+          const valor = await atualizarCotacaoRendaFixa(inv);
+          if(valor == null || !(valor > 0)) return false;
           inv.cotacaoAtual = valor;
           inv.cotacaoAutomatica = true;
-          inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+          inv.ultimaAtualizacao = hoje;
           await persistirInvestimento(inv);
+          return true;
         }
-      } else if(inv.quantidade != null){
-        const cotacao = await buscarCotacao(inv.nome, inv.tipo);
-        if(cotacao != null && cotacao > 0){
-          inv.cotacaoAtual = cotacao;
-          inv.cotacaoAutomatica = true;
-          inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
-          await persistirInvestimento(inv);
-        }
-      }
+        const dados = cotações[inv.nome];
+        const preco = dados && dados.preco;
+        if(preco == null || !(preco > 0)) return false;
+        inv.cotacaoAtual = preco;
+        inv.cotacaoAutomatica = true;
+        inv.ultimaAtualizacao = hoje;
+        await persistirInvestimento(inv);
+        return true;
+      }));
+
+      ultimaAtualizacaoTimestamp = Date.now();
+      const falhas = atualizados.filter(Boolean).length;
+      statusEl.textContent = falhas
+        ? falhas + ' ativo(s) sem cotação'
+        : 'tudo salvo';
+      renderizarTudo();
+    }catch(e){
+      document.getElementById('status-salvamento').textContent = 'erro ao atualizar cotações';
+    }finally{
+      atualizando = false;
     }
-    ultimaAtualizacaoTimestamp = Date.now();
-    statusEl.textContent = 'tudo salvo';
-    renderizarTudo();
-    atualizando = false;
   }
 
   function calcularInvestido(inv){
@@ -172,37 +205,21 @@
     return { retorno: atual - investido, retornoPct: investido > 0 ? (atual / investido - 1) * 100 : 0 };
   }
 
-  async function buscarCotacaoCripto(ticker){
-    const tickerLimpo = ticker.toUpperCase().trim();
-    const coinId = CRYPTO_MAP[tickerLimpo] || tickerLimpo.toLowerCase();
-    try{
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + encodeURIComponent(coinId) + '&vs_currencies=brl', {
-        signal: AbortSignal.timeout(10000)
-      });
-      if(!res.ok) return null;
-      const data = await res.json();
-      if(data[coinId] && data[coinId].brl != null) return data[coinId].brl;
-      const alt = data[tickerLimpo.toLowerCase()];
-      if(alt && alt.brl != null) return alt.brl;
-      return null;
-    }catch(e){
-      return null;
-    }
-  }
+  const TIPOS_COM_COTACAO = ['Ações','FIIs','Criptomoedas','Fundos'];
 
-  async function buscarCotacaoAcaoFII(ticker){
-    const t = ticker.toUpperCase().trim();
-    try{
-      const res = await fetch('https://ledev.com.br/api/cotacoes/' + encodeURIComponent(t), {
-        signal: AbortSignal.timeout(8000)
-      });
-      if(!res.ok) return null;
-      const data = await res.json();
-      if(data && data.price != null) return parseFloat(data.price);
-      return null;
-    }catch(e){
-      return null;
-    }
+  // Uma única chamada para todos os ativos. O endpoint /api/cotacoes faz o
+  // proxy no servidor, com cache e sem rate limit por ativo — antes era uma
+  // requisição por item, o que estourava o limite do CoinGecko e travava tudo.
+  async function buscarCotacoesEmLote(ativos){
+    const alvo = ativos.filter(a => TIPOS_COM_COTACAO.includes(a.tipo) && a.quantidade != null);
+    if(alvo.length === 0) return {};
+    const nomes = alvo.map(a => a.nome);
+    const tipos = alvo.map(a => a.tipo);
+    const res = await auth.apiFetch(
+      '/cotacoes?ativos=' + encodeURIComponent(nomes.join(',')) +
+      '&tipos=' + encodeURIComponent(tipos.join(','))
+    );
+    return (res && res.cotações) || {};
   }
 
   function pegarCache(chave){
@@ -325,16 +342,10 @@
 
   function detectarTipo(ticker){
     const t = ticker.toUpperCase().trim();
-    if(CRYPTO_MAP[t]) return 'Criptomoedas';
+    if(CRYPTO_CONHECIDOS[t]) return 'Criptomoedas';
     if(/^[A-Z]{4}11$/.test(t)) return 'FIIs';
     if(/^[A-Z]{4}[0-9]{1,2}$/.test(t)) return 'Ações';
     if(/^[A-Z0-9]{2,10}$/.test(t)) return 'Criptomoedas';
-    return null;
-  }
-
-  async function buscarCotacao(ticker, tipo){
-    if(tipo === 'Criptomoedas') return buscarCotacaoCripto(ticker);
-    if(tipo === 'Ações' || tipo === 'FIIs' || tipo === 'Fundos') return buscarCotacaoAcaoFII(ticker);
     return null;
   }
 
@@ -347,7 +358,11 @@
   const grupoIpcaInfo = document.getElementById('grupo-ipca-info');
   const ipcaInfoTexto = document.getElementById('ipca-info-texto');
   const rendafixaTaxaInput = document.getElementById('rendafixa-taxa');
+  const inputPrecoMedio = document.getElementById('investimento-preco-medio');
+  const inputValorAplicado = document.getElementById('rendafixa-valor-aplicado');
   mascaraData(document.getElementById('rendafixa-data-aplicacao'));
+  mascaraMoeda(inputPrecoMedio);
+  mascaraMoeda(inputValorAplicado);
 
   function atualizarFormulario(){
     const tipo = tipoSelect.value;
@@ -359,12 +374,12 @@
       grupoPadrao.style.display = '';
     }
     const ajudaTextos = {
-      'Ações':'Informe o número de ações compradas e o preço médio. A cotação atual é atualizada automaticamente via brapi.dev.',
-      'FIIs':'Informe o número de cotas e o preço médio. A cotação atual é atualizada automaticamente.',
-      'Renda Fixa':'Informe os dados da aplicação. O valor atual será calculado com base na taxa informada.',
+      'Ações':'Informe a quantidade de ações e o preço médio. A cotação é buscada automaticamente.',
+      'FIIs':'Informe a quantidade de cotas e o preço médio. A cotação é buscada automaticamente.',
+      'Renda Fixa':'Informe os dados da aplicação. O valor atual é calculado com base na taxa informada.',
       'Tesouro Direto':'Informe os dados do título. O valor atual é calculado automaticamente conforme o tipo de rendimento.',
-      'Criptomoedas':'Informe a quantidade comprada e o preço médio. A cotação atual é buscada automaticamente via CoinGecko.',
-      'Fundos':'Informe a quantidade de cotas e o preço médio.',
+      'Criptomoedas':'Informe a quantidade comprada e o preço médio. A cotação é buscada automaticamente.',
+      'Fundos':'Informe a quantidade de cotas e o preço médio. A cotação é buscada automaticamente.',
       'Outros':'Informe a quantidade e o preço médio.'
     };
     textoAjuda.innerHTML = '<p>' + (ajudaTextos[tipo] || 'Preencha os campos abaixo.') + '</p>';
@@ -425,13 +440,13 @@
     const tipo = tipoSelect.value;
     if(!nome) return;
 
-    const temApi = tipo === 'Ações' || tipo === 'FIIs' || tipo === 'Criptomoedas' || tipo === 'Fundos';
+    const temApi = TIPOS_COM_COTACAO.includes(tipo);
 
     let payload = { nome, tipo, cotacaoAtual: null, cotacaoAutomatica: false, ultimaAtualizacao: null, quantidade: null, precoMedio: null, dataAplicacao: null, valorAplicado: null, tipoRendimento: null, taxa: null };
 
     if(tipo === 'Renda Fixa' || tipo === 'Tesouro Direto'){
       const dataAplicacao = document.getElementById('rendafixa-data-aplicacao').value;
-      const valorAplicado = parseFloat(document.getElementById('rendafixa-valor-aplicado').value);
+      const valorAplicado = parseDecimal(document.getElementById('rendafixa-valor-aplicado').value);
       const tipoRendimento = document.getElementById('rendafixa-tipo-rendimento').value;
       const taxa = parseFloat(document.getElementById('rendafixa-taxa').value);
       if(!dataAplicacao || !valorAplicado || valorAplicado <= 0 || !taxa || taxa <= 0) return;
@@ -441,7 +456,7 @@
       payload.taxa = taxa;
     } else {
       const quantidade = parseFloat(document.getElementById('investimento-quantidade').value);
-      const precoMedio = parseFloat(document.getElementById('investimento-preco-medio').value);
+      const precoMedio = parseDecimal(document.getElementById('investimento-preco-medio').value);
       if(!quantidade || quantidade <= 0 || !precoMedio || precoMedio <= 0) return;
       payload.quantidade = quantidade;
       payload.precoMedio = precoMedio;
@@ -486,15 +501,17 @@
             renderizarTudo();
           }
         } else if(temApi){
-          const cotacao = await buscarCotacao(nome, tipo);
-          if(cotacao != null && cotacao > 0){
-            inv.cotacaoAtual = cotacao;
+          const cotações = await buscarCotacoesEmLote([{ nome, tipo, quantidade: payload.quantidade }]);
+          const dados = cotações[nome];
+          const preco = dados && dados.preco;
+          if(preco != null && preco > 0){
+            inv.cotacaoAtual = preco;
             inv.cotacaoAutomatica = true;
             inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
             await persistirInvestimento(inv);
             renderizarTudo();
           } else {
-            statusEl.textContent = 'cotação indisponível — clique ↻ para tentar novamente';
+            statusEl.textContent = 'cotação indisponível para ' + nome + ' — use o ↻ para tentar de novo';
             return;
           }
         }
@@ -518,6 +535,12 @@
     }
   }
 
+  const formatarMoedaInput = (v) => {
+    const n = Number(v);
+    if(!Number.isFinite(n)) return '';
+    return n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  };
+
   function editarInvestimento(id){
     const i = estado.investimentos.find(i => i.id === id);
     if(!i) return;
@@ -526,12 +549,12 @@
     atualizarFormulario();
     if(i.tipo === 'Renda Fixa' || i.tipo === 'Tesouro Direto'){
       document.getElementById('rendafixa-data-aplicacao').value = formatarDataInput(i.dataAplicacao);
-      document.getElementById('rendafixa-valor-aplicado').value = i.valorAplicado;
+      document.getElementById('rendafixa-valor-aplicado').value = formatarMoedaInput(i.valorAplicado);
       document.getElementById('rendafixa-tipo-rendimento').value = i.tipoRendimento;
       document.getElementById('rendafixa-taxa').value = i.taxa;
     } else {
       document.getElementById('investimento-quantidade').value = i.quantidade;
-      document.getElementById('investimento-preco-medio').value = i.precoMedio;
+      document.getElementById('investimento-preco-medio').value = formatarMoedaInput(i.precoMedio);
     }
     editandoId = i.id;
     document.getElementById('investimento-botao-adicionar').textContent = 'Salvar alteração';
@@ -593,11 +616,11 @@
         <td><span class="etiqueta" style="background:${CORES_TIPO[i.tipo] || '#8A8775'}26; color:${CORES_TIPO[i.tipo] || '#8A8775'}">${i.tipo}</span></td>
         <td class="numero">${formatarMoeda(investido)}</td>
         <td class="numero">${formatarMoeda(atual)}</td>
-        <td class="numero" style="color:${retorno >= 0 ? 'var(--esmeralda-texto)' : 'var(--terracota-texto)'}">${formatarMoeda(retorno)} (${formatarPercentual(retornoPct)})</td>
-        <td style="text-align:right;">
-          <button class="botao-secundario" data-id="${i.id}" data-acao="atualizar" title="Atualizar cotação">↻</button>
-          <button class="botao-secundario" data-id="${i.id}" data-acao="editar">editar</button>
-          <button class="botao-secundario" data-id="${i.id}" data-acao="remover">remover</button>
+        <td class="numero ${retorno >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(retorno)} (${formatarPercentual(retornoPct)})</td>
+        <td class="celula-acoes">
+          <button class="botao-icone" data-id="${i.id}" data-acao="atualizar" title="Atualizar cotação" aria-label="Atualizar cotação de ${escaparHtml(i.nome)}">${ICONES.atualizar}</button>
+          <button class="botao-icone" data-id="${i.id}" data-acao="editar" title="Editar" aria-label="Editar ${escaparHtml(i.nome)}">${ICONES.editar}</button>
+          <button class="botao-icone botao-perigo" data-id="${i.id}" data-acao="remover" title="Remover" aria-label="Remover ${escaparHtml(i.nome)}">${ICONES.remover}</button>
         </td>
       `;
       tr.querySelector('[data-acao="editar"]').addEventListener('click', () => editarInvestimento(i.id));
@@ -621,7 +644,7 @@
     if(graficoDistribuicao) graficoDistribuicao.destroy();
     const legendaEl = document.getElementById('legenda-distribuicao');
     if(rotulos.length === 0){
-      legendaEl.innerHTML = '<span style="font-style:italic; color:var(--tinta-fraca);">Nenhum ativo cadastrado</span>';
+      legendaEl.innerHTML = '<span style="font-style:italic; color:var(--texto-fraca);">Nenhum ativo cadastrado</span>';
       return;
     }
     graficoDistribuicao = new Chart(ctx, {
@@ -629,7 +652,7 @@
       data:{
         labels:rotulos,
         datasets:[{
-          data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:3,
+          data:dados, backgroundColor:cores, borderColor:'var(--fundo-card)', borderWidth:3,
           hoverOffset:10
         }]
       },
@@ -638,10 +661,10 @@
         plugins:{
           legend:{ display:false },
           tooltip:{
-            backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Noto Sans, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'Noto Sans Mono, monospace', size:13 },
-            padding:12, cornerRadius:8, displayColors:true,
+            backgroundColor:'rgba(20,23,33,0.94)',
+            titleFont:{ family:"'Inter', sans-serif", size:12, weight:'600' },
+            bodyFont:{ family:"'Inter', sans-serif", size:13 },
+            padding:12, cornerRadius:6, displayColors:true,
             callbacks:{
               label:(ctx)=>{
                 const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
@@ -668,7 +691,7 @@
     if(ativos.length === 0) return;
     const nomes = ativos.map(i => i.nome);
     const retornos = ativos.map(i => calcularRetorno(i).retornoPct);
-    const cores = retornos.map(r => r >= 0 ? '#1F6F54' : '#B2492E');
+    const cores = retornos.map(r => r >= 0 ? '#26A69A' : '#EF5350');
     graficoRetorno = new Chart(ctx, {
       type:'bar',
       data:{
@@ -689,29 +712,29 @@
         plugins:{
           legend:{ display:false },
           tooltip:{
-            backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Noto Sans, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'Noto Sans Mono, monospace', size:13 },
-            padding:12, cornerRadius:8,
+            backgroundColor:'rgba(20,23,33,0.94)',
+            titleFont:{ family:"'Inter', sans-serif", size:12, weight:'600' },
+            bodyFont:{ family:"'Inter', sans-serif", size:13 },
+            padding:12, cornerRadius:6,
             callbacks:{ label:(ctx) => formatarPercentual(ctx.raw) }
           }
         },
         scales:{
           y:{
             beginAtZero:true,
-            grid:{ color:'rgba(0,0,0,0.06)', drawBorder:false },
+            grid:{ color:'#2A2E39', drawBorder:false },
             ticks:{
               callback:(v) => v+'%',
-              font:{ family:'Noto Sans Mono, monospace', size:11 },
-              color:'#93927F'
+              font:{ family:"'Inter', sans-serif", size:11 },
+              color:'#787B86'
             }
           },
           x:{
             grid:{ display:false },
             ticks:{
               maxRotation:45,
-              font:{ family:'Noto Sans, sans-serif', size:11 },
-              color:'#4D5A78'
+              font:{ family:"'Inter', sans-serif", size:11 },
+              color:'#787B86'
             }
           }
         },
@@ -742,30 +765,39 @@
       return;
     }
 
+    if(!TIPOS_COM_COTACAO.includes(inv.tipo)){
+      statusEl.textContent = 'tipo "' + inv.tipo + '" não tem cotação automática';
+      return;
+    }
+
     if(inv.quantidade == null){
       statusEl.textContent = 'sem quantidade — use o modo padrão';
       return;
     }
 
-    const cotacao = await buscarCotacao(inv.nome, inv.tipo);
-    if(cotacao != null && cotacao > 0){
-      inv.cotacaoAtual = cotacao;
-      inv.cotacaoAutomatica = true;
-      inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
-      await persistirInvestimento(inv);
-      renderizarTudo();
-      statusEl.textContent = 'cotação atualizada';
-    } else {
-      statusEl.textContent = 'cotação indisponível para ' + inv.nome;
+    try{
+      const cotações = await buscarCotacoesEmLote([inv]);
+      const dados = cotações[inv.nome];
+      const preco = dados && dados.preco;
+      if(preco != null && preco > 0){
+        inv.cotacaoAtual = preco;
+        inv.cotacaoAutomatica = true;
+        inv.ultimaAtualizacao = new Date().toISOString().slice(0,10);
+        await persistirInvestimento(inv);
+        renderizarTudo();
+        statusEl.textContent = 'cotação atualizada';
+      } else {
+        statusEl.textContent = 'cotação indisponível para ' + inv.nome;
+      }
+    }catch(e){
+      statusEl.textContent = 'erro ao buscar cotação de ' + inv.nome;
     }
   }
 
   document.getElementById('investimento-botao-atualizar-tudo').addEventListener('click', async function(){
     this.disabled = true;
     this.textContent = 'Atualizando...';
-    for(const inv of estado.investimentos){
-      await atualizarCotacao(inv.id);
-    }
+    await atualizarTodasCotacoes();
     this.disabled = false;
     this.textContent = 'Atualizar todas as cotações';
   });
