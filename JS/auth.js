@@ -15,7 +15,10 @@
   async function apiFetch(path, options) {
     options = options || {};
     const token = getToken();
-    const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+    // charset=utf-8 é explícito porque sem ele o corpo da requisição já chegou
+    // decodificado errado em produção: "Ações" e "Salário" foram salvos com
+    // caracteres de substituição (U+FFFD) e ficaram quebrados no banco.
+    const headers = Object.assign({ 'Content-Type': 'application/json; charset=utf-8' }, options.headers || {});
     if (token) headers['Authorization'] = 'Bearer ' + token;
     const res = await fetch(API_BASE + path, Object.assign({}, options, { headers: headers }));
     let data = null;

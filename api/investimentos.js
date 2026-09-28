@@ -2,6 +2,11 @@ const { query } = require('./_lib/db');
 const { autenticar } = require('./_lib/autenticar');
 const { textoValido, valorOpcionalValido, dataISOopcional, uuidValido } = require('./_lib/validar');
 
+// Aliases camelCase precisam de aspas duplas: sem elas o PostgreSQL dobra o
+// identificador para minúsculas e devolve "precomedio" em vez de "precoMedio",
+// o que fazia o front receber precoMedio = null e exibir R$ 0,00 investido.
+const COLUNAS = `id, nome, tipo, cotacao_atual AS "cotacaoAtual", cotacao_automatica AS "cotacaoAutomatica", ultima_atualizacao AS "ultimaAtualizacao", quantidade, preco_medio AS "precoMedio", data_aplicacao AS "dataAplicacao", valor_aplicado AS "valorAplicado", tipo_rendimento AS "tipoRendimento", taxa, criado_em AS "criadoEm"`;
+
 async function handler(req, res) {
   autenticar(req, res, async () => {
     const usuarioId = req.usuario.id;
@@ -9,7 +14,7 @@ async function handler(req, res) {
     if (req.method === 'GET') {
       try {
         const result = await query(
-          `SELECT id, nome, tipo, cotacao_atual AS cotacaoAtual, cotacao_automatica AS cotacaoAutomatica, ultima_atualizacao AS ultimaAtualizacao, quantidade, preco_medio AS precoMedio, data_aplicacao AS dataAplicacao, valor_aplicado AS valorAplicado, tipo_rendimento AS tipoRendimento, taxa, criado_em FROM investimentos WHERE usuario_id = $1 ORDER BY criado_em DESC`,
+          `SELECT ${COLUNAS} FROM investimentos WHERE usuario_id = $1 ORDER BY criado_em DESC`,
           [usuarioId]
         );
         return res.status(200).json({ investimentos: result.rows });
@@ -33,7 +38,7 @@ async function handler(req, res) {
       if (!dataISOopcional(dataAplicacao) || !dataISOopcional(ultimaAtualizacao)) return res.status(400).json({ erro: 'Data inválida' });
       try {
         const result = await query(
-          `INSERT INTO investimentos (usuario_id, nome, tipo, cotacao_atual, cotacao_automatica, ultima_atualizacao, quantidade, preco_medio, data_aplicacao, valor_aplicado, tipo_rendimento, taxa) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, nome, tipo, cotacao_atual AS cotacaoAtual, cotacao_automatica AS cotacaoAutomatica, ultima_atualizacao AS ultimaAtualizacao, quantidade, preco_medio AS precoMedio, data_aplicacao AS dataAplicacao, valor_aplicado AS valorAplicado, tipo_rendimento AS tipoRendimento, taxa, criado_em`,
+          `INSERT INTO investimentos (usuario_id, nome, tipo, cotacao_atual, cotacao_automatica, ultima_atualizacao, quantidade, preco_medio, data_aplicacao, valor_aplicado, tipo_rendimento, taxa) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING ${COLUNAS}`,
           [usuarioId, nome, tipo, cotacaoAtual ?? null, cotacaoAutomatica ?? false, ultimaAtualizacao ?? null, quantidade ?? null, precoMedio ?? null, dataAplicacao ?? null, valorAplicado ?? null, tipoRendimento ?? null, taxa ?? null]
         );
         return res.status(201).json({ investimento: result.rows[0] });
@@ -53,7 +58,7 @@ async function handler(req, res) {
       if (tipo !== undefined && !textoValido(tipo, 1, 50)) return res.status(400).json({ erro: 'Tipo inválido' });
       try {
         const result = await query(
-          `UPDATE investimentos SET nome = $1, tipo = $2, cotacao_atual = $3, cotacao_automatica = $4, ultima_atualizacao = $5, quantidade = $6, preco_medio = $7, data_aplicacao = $8, valor_aplicado = $9, tipo_rendimento = $10, taxa = $11 WHERE id = $12 AND usuario_id = $13 RETURNING id, nome, tipo, cotacao_atual AS cotacaoAtual, cotacao_automatica AS cotacaoAutomatica, ultima_atualizacao AS ultimaAtualizacao, quantidade, preco_medio AS precoMedio, data_aplicacao AS dataAplicacao, valor_aplicado AS valorAplicado, tipo_rendimento AS tipoRendimento, taxa, criado_em`,
+          `UPDATE investimentos SET nome = $1, tipo = $2, cotacao_atual = $3, cotacao_automatica = $4, ultima_atualizacao = $5, quantidade = $6, preco_medio = $7, data_aplicacao = $8, valor_aplicado = $9, tipo_rendimento = $10, taxa = $11 WHERE id = $12 AND usuario_id = $13 RETURNING ${COLUNAS}`,
           [nome, tipo, cotacaoAtual ?? null, cotacaoAutomatica ?? false, ultimaAtualizacao ?? null, quantidade ?? null, precoMedio ?? null, dataAplicacao ?? null, valorAplicado ?? null, tipoRendimento ?? null, taxa ?? null, id, usuarioId]
         );
         if (result.rows.length === 0) {

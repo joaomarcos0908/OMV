@@ -35,17 +35,31 @@
     return Number.isFinite(n) ? n : NaN;
   };
 
+  // A máscara precisa remontar o texto a partir dos dígitos digitados, e não a
+  // partir do próprio valor já formatado. Reformatar o texto formatado a cada
+  // tecla truncava o número: "434857,72" virava "4,04" e o valor era salvo
+  // errado. A vírgula é o único separador decimal; o resto é reais.
   function mascaraMoeda(el){
     el.addEventListener('input', function(){
-      const cursorNoFim = this.selectionStart === this.value.length;
+      const limpo = this.value.replace(/[^\d,]/g, '');
+      if(!limpo){
+        this.value = '';
+        return;
+      }
+      const partes = limpo.split(',');
+      const inteiro = (partes.shift() || '').replace(/^0+(?=\d)/, '');
+      const centavos = partes.join('').replace(/\D/g, '');
+      if(!centavos){
+        this.value = inteiro + (limpo.endsWith(',') ? ',' : '');
+        return;
+      }
+      this.value = Number(inteiro || 0).toLocaleString('pt-BR') + ',' + centavos.slice(0, 2);
+    });
+    el.addEventListener('blur', function(){
       const n = parseDecimal(this.value);
       this.value = Number.isFinite(n)
         ? n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })
         : '';
-      if(cursorNoFim){
-        const l = this.value.length;
-        this.setSelectionRange(l, l);
-      }
     });
   }
 

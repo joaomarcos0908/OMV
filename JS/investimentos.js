@@ -36,17 +36,31 @@
     return Number.isFinite(n) ? n : NaN;
   };
 
+  // A máscara precisa remontar o texto a partir dos dígitos digitados, e não a
+  // partir do próprio valor já formatado. Reformatar o texto formatado a cada
+  // tecla truncava o número: "434857,72" virava "4,04" e o preço médio era
+  // salvo errado. A vírgula é o único separador decimal; o resto é reais.
   function mascaraMoeda(el){
     el.addEventListener('input', function(){
-      const cursorNoFim = this.selectionStart === this.value.length;
+      const limpo = this.value.replace(/[^\d,]/g, '');
+      if(!limpo){
+        this.value = '';
+        return;
+      }
+      const partes = limpo.split(',');
+      const inteiro = (partes.shift() || '').replace(/^0+(?=\d)/, '');
+      const centavos = partes.join('').replace(/\D/g, '');
+      if(!centavos){
+        this.value = inteiro + (limpo.endsWith(',') ? ',' : '');
+        return;
+      }
+      this.value = Number(inteiro || 0).toLocaleString('pt-BR') + ',' + centavos.slice(0, 2);
+    });
+    el.addEventListener('blur', function(){
       const n = parseDecimal(this.value);
       this.value = Number.isFinite(n)
         ? n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })
         : '';
-      if(cursorNoFim){
-        const l = this.value.length;
-        this.setSelectionRange(l, l);
-      }
     });
   }
 
@@ -83,20 +97,32 @@
   let graficoRetorno = null;
   let editandoId = null;
 
+  const numero = (v) => (v === null || v === undefined || v === '') ? null : Number(v);
+
+  // A API pode devolver a coluna em camelCase, snake_case ou tudo minúsculo
+  // (alias sem aspas no PostgreSQL é dobrado). Sem esta tolerância um campo
+  // não reconhecido virava null e o "Investido" aparecia como R$ 0,00.
+  function campo(r, ...nomes){
+    for(const n of nomes){
+      if(r[n] !== undefined && r[n] !== null && r[n] !== '') return r[n];
+    }
+    return null;
+  }
+
   function normalizarInvestimento(r){
     return {
       id: r.id,
       nome: r.nome,
       tipo: r.tipo,
-      cotacaoAtual: r.cotacaoAtual != null ? Number(r.cotacaoAtual) : r.cotacao_atual != null ? Number(r.cotacao_atual) : null,
-      cotacaoAutomatica: r.cotacaoAutomatica ?? r.cotacao_automatica ?? false,
-      ultimaAtualizacao: (r.ultimaAtualizacao || r.ultima_atualizacao || '') ? String(r.ultimaAtualizacao || r.ultima_atualizacao).slice(0,10) : null,
-      quantidade: r.quantidade != null ? Number(r.quantidade) : null,
-      precoMedio: r.precoMedio != null ? Number(r.precoMedio) : r.preco_medio != null ? Number(r.preco_medio) : null,
-      dataAplicacao: (r.dataAplicacao || r.data_aplicacao || '') ? String(r.dataAplicacao || r.data_aplicacao).slice(0,10) : null,
-      valorAplicado: r.valorAplicado != null ? Number(r.valorAplicado) : r.valor_aplicado != null ? Number(r.valor_aplicado) : null,
-      tipoRendimento: r.tipoRendimento || r.tipo_rendimento || null,
-      taxa: r.taxa != null ? Number(r.taxa) : null
+      cotacaoAtual: numero(campo(r, 'cotacaoAtual', 'cotacao_atual', 'cotacaoatual')),
+      cotacaoAutomatica: !!campo(r, 'cotacaoAutomatica', 'cotacao_automatica', 'cotacaoautomatica'),
+      ultimaAtualizacao: (campo(r, 'ultimaAtualizacao', 'ultima_atualizacao', 'ultimaatualizacao') || '').slice(0, 10) || null,
+      quantidade: numero(campo(r, 'quantidade')),
+      precoMedio: numero(campo(r, 'precoMedio', 'preco_medio', 'precomedio')),
+      dataAplicacao: (campo(r, 'dataAplicacao', 'data_aplicacao', 'dataaplicacao') || '').slice(0, 10) || null,
+      valorAplicado: numero(campo(r, 'valorAplicado', 'valor_aplicado', 'valoraplicado')),
+      tipoRendimento: campo(r, 'tipoRendimento', 'tipo_rendimento', 'tiporendimento'),
+      taxa: numero(campo(r, 'taxa'))
     };
   }
 
@@ -536,6 +562,7 @@
   }
 
   const formatarMoedaInput = (v) => {
+    if(v === null || v === undefined || v === '') return '';
     const n = Number(v);
     if(!Number.isFinite(n)) return '';
     return n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
