@@ -6,7 +6,10 @@
     <title>OMV - Organiza Minha Vida</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="CSS/estilosPagSecundarias.css" />
   </head>
   <body>
@@ -15,7 +18,16 @@
         <div>
           <span class="marca-eyebrow">livro-caixa pessoal</span>
           <h1>
-            <svg class="marca-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <svg
+              class="marca-logo"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
               <path d="M3 17.5 9 11l4 4 8-8.5" />
               <path d="M15 6.5h6v6" />
             </svg>
@@ -27,9 +39,23 @@
           <a class="aba-botao" href="Html/investimentos.html">Investimentos</a>
           <a class="aba-botao" href="Html/metas.html">Metas</a>
         </nav>
-        <span class="status-salvamento" id="status-salvamento">carregando...</span>
-        <button id="botao-sair" class="botao-voltar botao-perigo" onclick="auth.logout()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <span class="status-salvamento" id="status-salvamento"
+          >carregando...</span
+        >
+        <button
+          id="botao-sair"
+          class="botao-voltar botao-perigo"
+          onclick="auth.logout()"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
@@ -46,7 +72,10 @@
             <select id="filtro-mes"></select>
           </div>
         </div>
-        <div class="grade-indicadores grade-indicadores--resumo" id="resumo-indicadores"></div>
+        <div
+          class="grade-indicadores grade-indicadores--resumo"
+          id="resumo-indicadores"
+        ></div>
       </div>
 
       <div class="grade-dupla">
@@ -55,7 +84,11 @@
           <div class="linha-formulario">
             <div class="campo">
               <label for="receita-descricao">Descrição</label>
-              <input type="text" id="receita-descricao" placeholder="Ex: Salário" />
+              <input
+                type="text"
+                id="receita-descricao"
+                placeholder="Ex: Salário"
+              />
             </div>
             <div class="campo">
               <label for="receita-categoria">Categoria</label>
@@ -68,24 +101,41 @@
             </div>
             <div class="campo campo-estreita">
               <label for="receita-valor">Valor (R$)</label>
-              <input type="text" id="receita-valor" inputmode="decimal" placeholder="0,00" />
+              <input
+                type="text"
+                id="receita-valor"
+                inputmode="decimal"
+                placeholder="0,00"
+              />
             </div>
             <div class="campo campo-media">
               <label for="receita-data">Data</label>
-              <input type="text" id="receita-data" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" />
+              <input
+                type="text"
+                id="receita-data"
+                placeholder="dd/mm/aaaa"
+                inputmode="numeric"
+                maxlength="10"
+              />
             </div>
           </div>
           <div class="rodape-formulario">
-            <button class="botao-primario" id="receita-botao-adicionar">Adicionar receita</button>
+            <button class="botao-primario" id="receita-botao-adicionar">
+              Adicionar receita
+            </button>
           </div>
         </div>
 
         <div class="cartao" id="form-gasto">
-          <h2>Novo lançamento</h2>
+          <h2>Nova Despesa</h2>
           <div class="linha-formulario">
             <div class="campo">
               <label for="gasto-descricao">Descrição</label>
-              <input type="text" id="gasto-descricao" placeholder="Ex: Supermercado" />
+              <input
+                type="text"
+                id="gasto-descricao"
+                placeholder="Ex: Supermercado"
+              />
             </div>
             <div class="campo">
               <label for="gasto-categoria">Categoria</label>
@@ -103,26 +153,50 @@
               <label>Tipo</label>
               <div class="grupo-radio">
                 <label class="radio-opcao">
-                  <input type="radio" name="gasto-tipo" id="gasto-variavel" value="variavel" checked />
+                  <input
+                    type="radio"
+                    name="gasto-tipo"
+                    id="gasto-variavel"
+                    value="variavel"
+                    checked
+                  />
                   <span>Variável</span>
                 </label>
                 <label class="radio-opcao">
-                  <input type="radio" name="gasto-tipo" id="gasto-fixa" value="fixa" />
+                  <input
+                    type="radio"
+                    name="gasto-tipo"
+                    id="gasto-fixa"
+                    value="fixa"
+                  />
                   <span>Fixa</span>
                 </label>
               </div>
             </div>
             <div class="campo campo-estreita">
               <label for="gasto-valor">Valor (R$)</label>
-              <input type="text" id="gasto-valor" inputmode="decimal" placeholder="0,00" />
+              <input
+                type="text"
+                id="gasto-valor"
+                inputmode="decimal"
+                placeholder="0,00"
+              />
             </div>
             <div class="campo campo-media">
               <label for="gasto-data">Data</label>
-              <input type="text" id="gasto-data" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" />
+              <input
+                type="text"
+                id="gasto-data"
+                placeholder="dd/mm/aaaa"
+                inputmode="numeric"
+                maxlength="10"
+              />
             </div>
           </div>
           <div class="rodape-formulario">
-            <button class="botao-primario" id="gasto-botao-adicionar">Adicionar gasto</button>
+            <button class="botao-primario" id="gasto-botao-adicionar">
+              Adicionar gasto
+            </button>
           </div>
         </div>
 
@@ -187,7 +261,11 @@
         </div>
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+      integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
+      crossorigin="anonymous"
+    ></script>
     <script src="JS/auth.js"></script>
     <script src="JS/principal.js"></script>
   </body>
