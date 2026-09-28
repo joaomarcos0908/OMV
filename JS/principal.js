@@ -69,12 +69,14 @@
     const [ano, mes] = chave.split('-');
     return NOMES_MESES[parseInt(mes,10)-1] + ' de ' + ano;
   };
+  // Verde e vermelho ficam separados de propósito: em fatia de pizza ficariam
+  // vizinhos e o gráfico pareceria "dar ruim". O cinza é sempre o fallback.
   const CORES_CATEGORIA_GASTO = {
-    'Moradia':'#2962FF','Alimentação':'#F0B90B','Transporte':'#26A69A','Lazer':'#EF5350',
-    'Saúde':'#9B59B6','Educação':'#00A3E0','Outros':'#787B86'
+    'Moradia':'#4C8DFF','Alimentação':'#E0B94A','Transporte':'#5AC8D8','Lazer':'#F28B82',
+    'Saúde':'#B57BEE','Educação':'#3DD68C','Outros':'#9AA0A8'
   };
   const CORES_CATEGORIA_RECEITA = {
-    'Salário':'#26A69A','Estágio':'#2962FF','Freelance':'#F0B90B','Outros':'#787B86'
+    'Salário':'#3DD68C','Estágio':'#4C8DFF','Freelance':'#E0B94A','Outros':'#9AA0A8'
   };
 
   if (!auth.isLoggedIn()) {

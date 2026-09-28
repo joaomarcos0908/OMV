@@ -1,28 +1,30 @@
 :root{
-  /* Paleta inspirada no TradingView: fundo quase-preto, painéis grafite,
-     azul #2962FF como acento, verde/vermelho de alta e baixa. */
-  --fundo-escuro: #0B0E11;
-  --fundo-card: #131722;
-  --fundo-card-alto: #1E222D;
-  --fundo-input: #1E222D;
-  --borda-card: #2A2E39;
-  --borda-input: #363A45;
-  --texto-primario: #D1D4DC;
-  --texto-secundario: #787B86;
-  --texto-fraca: #5D606B;
-  --destaque-ciano: #2962FF;
-  --destaque-ciano-hover: #1E53E5;
-  --destaque-azul: #2962FF;
-  --gradiente-destaque: linear-gradient(135deg, #2962FF, #1E53E5);
-  --sombra-botao: 0 2px 12px rgba(41, 98, 255, 0.24);
-  --verde: #26A69A;
-  --vermelho: #EF5350;
-  --dourado: #F0B90B;
-  --esmeralda: #26A69A;
-  --terracota: #EF5350;
-  --azul-aco: #2962FF;
-  --toque-ciano: rgba(41, 98, 255, 0.16);
-  --toque-perigo: rgba(239, 83, 80, 0.14);
+  /* Dark sóbrio: três tons de fundo quase idênticos e cinzas frios, para a
+     página não virar um tabuleiro de caixas. O azul aparece só onde há
+     ação real (botão primário, foco, item ativo) e o verde/vermelho só em
+     número de alta/baixa. O resto é neutro. */
+  --fundo-escuro: #0E1013;
+  --fundo-card: #16191E;
+  --fundo-card-alto: #1D2127;
+  --fundo-input: #1D2127;
+  --borda-card: #23272E;
+  --borda-input: #2E333B;
+  --texto-primario: #E7E9EC;
+  --texto-secundario: #9AA0A8;
+  --texto-fraca: #6B7078;
+  --destaque-ciano: #4C8DFF;
+  --destaque-ciano-hover: #3E7BEC;
+  --destaque-azul: #4C8DFF;
+  --gradiente-destaque: none;
+  --sombra-botao: none;
+  --verde: #3DD68C;
+  --vermelho: #F2555A;
+  --dourado: #E0B94A;
+  --esmeralda: #3DD68C;
+  --terracota: #F2555A;
+  --azul-aco: #4C8DFF;
+  --toque-ciano: rgba(76, 141, 255, 0.12);
+  --toque-perigo: rgba(242, 85, 90, 0.12);
   --raio: 8px;
   --raio-pequeno: 6px;
   --raio-botao: 8px;
@@ -55,7 +57,7 @@ body{
   margin:0 auto;
   padding:8px 0 80px;
 }
-.aplicativo--largo{ max-width:1280px; }
+.aplicativo--largo{ max-width:1440px; }
 
 .grade-dupla{
   display:grid;
@@ -157,15 +159,32 @@ body{
 @keyframes surgir{ from{opacity:0; transform:translateY(2px);} to{opacity:1; transform:translateY(0);} }
 
 /* --- CARDS --- */
+/* Sem contorno e sem hover: a caixa de borda em cada bloco era o que mais
+   poluía a tela. A hierarquia vem do espaçamento e do título. */
 .cartao{
   background:var(--fundo-card);
   border:1px solid var(--borda-card);
   border-radius:var(--raio);
   padding:18px 16px;
   margin-bottom:16px;
-  transition:border-color .18s ease;
 }
-.cartao:hover{ border-color:var(--borda-input); }
+/* Na home os cards não têm contorno nem fundo: a grade de duas colunas com
+   um filete vertical entre as colunas delimita sem emoldurar. */
+.grade-dupla > .cartao{
+  background:transparent;
+  border:0;
+  border-radius:0;
+  padding:4px 0 0;
+  margin-bottom:0;
+}
+.grade-dupla h2{
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--texto-fraca);
+  margin:0 0 18px;
+}
 .cartao h2{
   font-family:var(--fonte-titulo);
   font-weight:600;
@@ -591,8 +610,10 @@ canvas{ display:block; }
   .cartao{ padding:20px 22px; }
 }
 @media (min-width:1024px){
-  .grade-dupla{ grid-template-columns:1fr 1fr; }
+  .grade-dupla{ grid-template-columns:1fr 1fr; gap:0 32px; }
   .grade-dupla > .cartao{ margin-bottom:0; }
+  /* filete vertical só quando existem duas colunas */
+  .grade-dupla > .cartao:nth-child(even){ border-left:1px solid var(--borda-card); padding-left:32px; }
 }
 
 /* --- ACCESSIBILITY --- */

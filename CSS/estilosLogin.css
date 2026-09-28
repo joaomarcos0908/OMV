@@ -47,13 +47,13 @@
 .alerta.erro {
   background: var(--terracota-suave);
   color: var(--terracota-texto);
-  border: 1px solid rgba(239, 83, 80, 0.4);
+  border: 1px solid rgba(242, 85, 90, 0.4);
 }
 
 .alerta.sucesso {
   background: var(--esmeralda-suave);
   color: var(--esmeralda-texto);
-  border: 1px solid rgba(38, 166, 154, 0.4);
+  border: 1px solid rgba(61, 214, 140, 0.4);
 }
 
 .btn-login {
@@ -75,7 +75,7 @@
 .btn-login:hover {
   background: var(--destaque-ciano-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(41, 98, 255, 0.32);
+  box-shadow: 0 4px 16px rgba(76, 141, 255, 0.32);
 }
 
 .btn-login:active { transform: translateY(0); }
