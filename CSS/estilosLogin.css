@@ -16,17 +16,17 @@
 
 .login-card .link-cadastro {
   font-size: 13px;
+  font-weight: 500;
   color: var(--destaque-ciano);
   cursor: pointer;
   background: none;
   border: none;
   font-family: var(--fonte-corpo);
-  text-decoration: underline;
+  text-decoration: none;
+  transition: color .15s ease;
 }
 
-.login-card .link-cadastro:hover {
-  color: #38bdf8;
-}
+.login-card .link-cadastro:hover { color: #5B8CFF; }
 
 .tab {
   display: none;
@@ -47,33 +47,38 @@
 .alerta.erro {
   background: var(--terracota-suave);
   color: var(--terracota-texto);
-  border: 1px solid var(--terracota);
+  border: 1px solid rgba(239, 83, 80, 0.4);
 }
 
 .alerta.sucesso {
   background: var(--esmeralda-suave);
   color: var(--esmeralda-texto);
-  border: 1px solid var(--esmeralda);
+  border: 1px solid rgba(38, 166, 154, 0.4);
 }
 
 .btn-login {
   width: 100%;
-  padding: 14px;
+  height: 42px;
   border-radius: var(--raio-botao);
   font-family: var(--fonte-corpo);
   font-size: 14px;
   font-weight: 600;
   color: #fff;
-  background: var(--gradiente-destaque);
+  background: var(--destaque-ciano);
   box-shadow: var(--sombra-botao);
   border: none;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 4px;
+  transition: background .15s ease, transform .15s ease, box-shadow .2s ease;
 }
 
 .btn-login:hover {
-  opacity: 0.9;
+  background: var(--destaque-ciano-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(41, 98, 255, 0.32);
 }
+
+.btn-login:active { transform: translateY(0); }
 
 .btn-login:disabled {
   opacity: 0.5;
@@ -82,5 +87,11 @@
 
 .texto-ajuda-login {
   font-size: 12px;
-  color: var(--tinta-fraca);
+  color: var(--texto-fraca);
+}
+
+.login-card input:focus-visible,
+.login-card button:focus-visible{
+  outline:2px solid var(--destaque-ciano);
+  outline-offset:2px;
 }

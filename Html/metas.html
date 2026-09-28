@@ -6,7 +6,7 @@
     <title>OMV - Metas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../CSS/estilosPagSecundarias.css" />
   </head>
   <body>
@@ -14,7 +14,13 @@
       <header class="cabecalho-topo">
         <div>
           <span class="marca-eyebrow">livro-caixa pessoal</span>
-          <h1>OMV</h1>
+          <h1>
+            <svg class="marca-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 17.5 9 11l4 4 8-8.5" />
+              <path d="M15 6.5h6v6" />
+            </svg>
+            OMV
+          </h1>
         </div>
         <nav class="menu-abas" aria-label="Navegação principal">
           <a class="aba-botao" href="../index.html">Início</a>
@@ -24,14 +30,21 @@
         <span class="status-salvamento" id="status-salvamento"
           >carregando...</span
         >
-        <button id="botao-sair" class="botao-voltar" onclick="auth.logout()">Sair</button>
+        <button id="botao-sair" class="botao-voltar botao-perigo" onclick="auth.logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sair
+        </button>
       </header>
       <section class="painel ativo" id="painel-metas">
         <div class="cartao">
           <h2>Nova meta</h2>
           <div class="linha-formulario">
             <div class="campo">
-              <label>Nome da meta</label>
+              <label for="meta-nome">Nome da meta</label>
               <input
                 type="text"
                 id="meta-nome"
@@ -39,25 +52,25 @@
               />
             </div>
             <div class="campo campo-media">
-              <label>Valor alvo (R$)</label>
+              <label for="meta-valor-alvo">Valor alvo (R$)</label>
               <input
-                type="number"
+                type="text"
                 id="meta-valor-alvo"
-                step="0.01"
+                inputmode="decimal"
                 placeholder="0,00"
               />
             </div>
             <div class="campo campo-media">
-              <label>Já guardado (R$)</label>
+              <label for="meta-valor-atual">Já guardado (R$)</label>
               <input
-                type="number"
+                type="text"
                 id="meta-valor-atual"
-                step="0.01"
+                inputmode="decimal"
                 placeholder="0,00"
               />
             </div>
             <div class="campo campo-media">
-              <label>Data limite</label>
+              <label for="meta-data-limite">Data limite</label>
               <input type="text" id="meta-data-limite" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" />
             </div>
           </div>

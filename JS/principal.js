@@ -24,6 +24,45 @@
       this.value = v;
     });
   }
+
+  // os campos em R$ são type=text para aceitar a máscara 1.234,56; com
+  // type=number o navegador rejeita a vírgula e parseFloat leria 1.234.
+  const parseDecimal = (v) => {
+    if(typeof v === 'number') return v;
+    let s = String(v == null ? '' : v).trim().replace(/[R$\s ]/g, '');
+    if(!s) return NaN;
+    if(s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    s = s.replace(/[^\d.-]/g, '');
+    if(!s || s === '-' || s === '.' || s === '-.') return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  };
+
+  function mascaraMoeda(el){
+    el.addEventListener('input', function(){
+      const cursorNoFim = this.selectionStart === this.value.length;
+      const n = parseDecimal(this.value);
+      this.value = Number.isFinite(n)
+        ? n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })
+        : '';
+      if(cursorNoFim){
+        const l = this.value.length;
+        this.setSelectionRange(l, l);
+      }
+    });
+  }
+
+  const formatarMoedaInput = (v) => {
+    const n = Number(v);
+    if(!Number.isFinite(n)) return '';
+    return n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  };
+
+  const ICONE_BASE = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+  const ICONES = {
+    editar: '<svg ' + ICONE_BASE + '><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    remover: '<svg ' + ICONE_BASE + '><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+  };
   const NOMES_MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const chaveMesAtual = () => new Date().toISOString().slice(0,7);
   const formatarChaveMes = (chave) => {
@@ -31,11 +70,11 @@
     return NOMES_MESES[parseInt(mes,10)-1] + ' de ' + ano;
   };
   const CORES_CATEGORIA_GASTO = {
-    'Moradia':'#3F5C78','Alimentação':'#9C6F1F','Transporte':'#1F6F54','Lazer':'#B2492E',
-    'Saúde':'#6E4F9E','Educação':'#2E7D8F','Outros':'#8A8775'
+    'Moradia':'#2962FF','Alimentação':'#F0B90B','Transporte':'#26A69A','Lazer':'#EF5350',
+    'Saúde':'#9B59B6','Educação':'#00A3E0','Outros':'#787B86'
   };
   const CORES_CATEGORIA_RECEITA = {
-    'Salário':'#1F6F54','Estágio':'#3F5C78','Freelance':'#9C6F1F','Outros':'#8A8775'
+    'Salário':'#26A69A','Estágio':'#2962FF','Freelance':'#F0B90B','Outros':'#787B86'
   };
 
   if (!auth.isLoggedIn()) {
@@ -86,13 +125,16 @@
     }catch(e){
       statusEl.textContent = 'erro ao carregar dados';
     }
-    mascaraData(document.getElementById('gasto-data'));
-    mascaraData(document.getElementById('receita-data'));
     const hoje = new Date().toISOString().slice(0,10);
     document.getElementById('gasto-data').value = formatarDataInput(hoje);
     document.getElementById('receita-data').value = formatarDataInput(hoje);
     renderizarTudo();
   }
+
+  mascaraData(document.getElementById('gasto-data'));
+  mascaraData(document.getElementById('receita-data'));
+  mascaraMoeda(document.getElementById('gasto-valor'));
+  mascaraMoeda(document.getElementById('receita-valor'));
 
   function renderizarFiltroMes(){
     const select = document.getElementById('filtro-mes');
@@ -176,7 +218,7 @@
   async function adicionarOuAtualizarGasto(){
     const desc = document.getElementById('gasto-descricao').value.trim();
     const cat = document.getElementById('gasto-categoria').value;
-    const valor = parseFloat(document.getElementById('gasto-valor').value);
+    const valor = parseDecimal(document.getElementById('gasto-valor').value);
     const data = converterDataParaISO(document.getElementById('gasto-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
     const fixa = document.getElementById('gasto-fixa').checked;
@@ -227,12 +269,12 @@
     if(!g) return;
     document.getElementById('gasto-descricao').value = g.desc;
     document.getElementById('gasto-categoria').value = g.cat;
-    document.getElementById('gasto-valor').value = g.valor;
+    document.getElementById('gasto-valor').value = formatarMoedaInput(g.valor);
     document.getElementById('gasto-data').value = formatarDataInput(g.data);
     document.getElementById(g.fixa ? 'gasto-fixa' : 'gasto-variavel').checked = true;
     editandoGastoId = id;
     document.getElementById('gasto-botao-adicionar').textContent = 'Salvar alteração';
-    document.getElementById('gastos').scrollIntoView({ behavior:'smooth', block:'start' });
+    document.getElementById('form-gasto').scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
   function renderizarTabelaGastos(mes){
@@ -250,9 +292,9 @@
           <td>${escaparHtml(g.desc)}${g.fixa ? ' <span class="etiqueta etiqueta-fixa">Fixa</span>' : ''}</td>
           <td><span class="etiqueta" style="background:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}">${g.cat}</span></td>
           <td class="numero">${formatarMoeda(g.valor)}</td>
-          <td style="text-align:right;">
-            <button class="botao-secundario" data-editar="${g.id}">editar</button>
-            <button class="botao-secundario" data-id="${g.id}">remover</button>
+          <td class="celula-acoes">
+            <button class="botao-icone" data-editar="${g.id}" title="Editar" aria-label="Editar ${escaparHtml(g.desc)}">${ICONES.editar}</button>
+            <button class="botao-icone botao-perigo" data-id="${g.id}" title="Remover" aria-label="Remover ${escaparHtml(g.desc)}">${ICONES.remover}</button>
           </td>
         `;
         tr.querySelector('[data-editar]').addEventListener('click', ()=>editarGasto(g.id));
@@ -284,7 +326,7 @@
       data:{
         labels:rotulos,
         datasets:[{
-          data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:3,
+          data:dados, backgroundColor:cores, borderColor:'var(--fundo-card)', borderWidth:3,
           hoverOffset:10
         }]
       },
@@ -293,10 +335,10 @@
         plugins:{
           legend:{ display:false },
           tooltip:{
-            backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Noto Sans, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'Noto Sans Mono, monospace', size:13 },
-            padding:12, cornerRadius:8, displayColors:true,
+            backgroundColor:'rgba(20,23,33,0.94)',
+            titleFont:{ family:"'Inter', sans-serif", size:12, weight:'600' },
+            bodyFont:{ family:"'Inter', sans-serif", size:13 },
+            padding:12, cornerRadius:6, displayColors:true,
             callbacks:{
               label:(ctx)=>{
                 const total = ctx.dataset.data.reduce((a,b)=>a+b,0);
@@ -322,7 +364,7 @@
   document.getElementById('receita-botao-adicionar').addEventListener('click', async ()=>{
     const desc = document.getElementById('receita-descricao').value.trim();
     const cat = document.getElementById('receita-categoria').value;
-    const valor = parseFloat(document.getElementById('receita-valor').value);
+    const valor = parseDecimal(document.getElementById('receita-valor').value);
     const data = converterDataParaISO(document.getElementById('receita-data').value) || new Date().toISOString().slice(0,10);
     if(!desc || !valor || valor<=0){ return; }
     const statusEl = document.getElementById('status-salvamento');
@@ -369,11 +411,11 @@
     if(!r) return;
     document.getElementById('receita-descricao').value = r.desc;
     document.getElementById('receita-categoria').value = r.cat;
-    document.getElementById('receita-valor').value = r.valor;
+    document.getElementById('receita-valor').value = formatarMoedaInput(r.valor);
     document.getElementById('receita-data').value = formatarDataInput(r.data);
     editandoReceitaId = id;
     document.getElementById('receita-botao-adicionar').textContent = 'Salvar alteração';
-    document.getElementById('receitas').scrollIntoView({ behavior:'smooth', block:'start' });
+    document.getElementById('form-receita').scrollIntoView({ behavior:'smooth', block:'start' });
   }
 
   function renderizarTabelaReceitas(mes){
@@ -391,9 +433,9 @@
           <td>${escaparHtml(r.desc)}</td>
           <td><span class="etiqueta" style="background:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}">${r.cat}</span></td>
           <td class="numero">${formatarMoeda(r.valor)}</td>
-          <td style="text-align:right;">
-            <button class="botao-secundario" data-editar="${r.id}">editar</button>
-            <button class="botao-secundario" data-id="${r.id}">remover</button>
+          <td class="celula-acoes">
+            <button class="botao-icone" data-editar="${r.id}" title="Editar" aria-label="Editar ${escaparHtml(r.desc)}">${ICONES.editar}</button>
+            <button class="botao-icone botao-perigo" data-id="${r.id}" title="Remover" aria-label="Remover ${escaparHtml(r.desc)}">${ICONES.remover}</button>
           </td>
         `;
         tr.querySelector('[data-editar]').addEventListener('click', ()=>editarReceita(r.id));
@@ -425,7 +467,7 @@
       data:{
         labels:rotulos,
         datasets:[{
-          data:dados, backgroundColor:cores, borderColor:'#fff', borderWidth:3,
+          data:dados, backgroundColor:cores, borderColor:'var(--fundo-card)', borderWidth:3,
           hoverOffset:10
         }]
       },
@@ -434,10 +476,10 @@
         plugins:{
           legend:{ display:false },
           tooltip:{
-            backgroundColor:'rgba(22,34,60,0.92)',
-            titleFont:{ family:'Noto Sans, sans-serif', size:12, weight:'600' },
-            bodyFont:{ family:'Noto Sans Mono, monospace', size:13 },
-            padding:12, cornerRadius:8, displayColors:true,
+            backgroundColor:'rgba(20,23,33,0.94)',
+            titleFont:{ family:"'Inter', sans-serif", size:12, weight:'600' },
+            bodyFont:{ family:"'Inter', sans-serif", size:13 },
+            padding:12, cornerRadius:6, displayColors:true,
             callbacks:{
               label:(ctx)=>{
                 const total = ctx.dataset.data.reduce((a,b)=>a+b,0);

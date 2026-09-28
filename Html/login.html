@@ -6,7 +6,7 @@
     <title>OMV - Organiza Minha Vida</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@400;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../CSS/estilosPagPrincipal.css" />
     <link rel="stylesheet" href="../CSS/estilosLogin.css" />
   </head>
@@ -21,11 +21,11 @@
         <div id="login-tab" class="tab ativo">
           <h2>Bem-vindo de volta</h2>
           <div class="campo">
-            <label>Email</label>
+            <label for="login-email">Email</label>
             <input type="email" id="login-email" placeholder="seu@email.com" />
           </div>
           <div class="campo">
-            <label>Senha</label>
+            <label for="login-senha">Senha</label>
             <input type="password" id="login-senha" placeholder="Sua senha" />
           </div>
           <button class="btn-login" id="login-botao">Entrar</button>
@@ -38,15 +38,15 @@
           <h2>Criar conta</h2>
           <div class="alerta" id="alerta-cadastro"></div>
           <div class="campo">
-            <label>Nome</label>
+            <label for="cadastro-nome">Nome</label>
             <input type="text" id="cadastro-nome" placeholder="Seu nome" />
           </div>
           <div class="campo">
-            <label>Email</label>
+            <label for="cadastro-email">Email</label>
             <input type="email" id="cadastro-email" placeholder="seu@email.com" />
           </div>
           <div class="campo">
-            <label>Senha</label>
+            <label for="cadastro-senha">Senha</label>
             <input type="password" id="cadastro-senha" placeholder="Mínimo 6 caracteres" />
           </div>
           <button class="btn-login" id="cadastro-botao">Criar conta</button>

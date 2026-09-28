@@ -24,6 +24,33 @@
     });
   }
 
+  const parseDecimal = (v) => {
+    if(typeof v === 'number') return v;
+    let s = String(v == null ? '' : v).trim().replace(/[R$\s ]/g, '');
+    if(!s) return NaN;
+    if(s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    s = s.replace(/[^\d.-]/g, '');
+    if(!s || s === '-' || s === '.' || s === '-.') return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  };
+
+  function mascaraMoeda(el){
+    el.addEventListener('input', function(){
+      const cursorNoFim = this.selectionStart === this.value.length;
+      const n = parseDecimal(this.value);
+      this.value = Number.isFinite(n)
+        ? n.toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 })
+        : '';
+      if(cursorNoFim){
+        const l = this.value.length;
+        this.setSelectionRange(l, l);
+      }
+    });
+  }
+
+  const ICONE_REMVER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+
   if (!auth.isLoggedIn()) {
     window.location.href = '/Html/login.html';
     return;
@@ -53,14 +80,17 @@
     }catch(e){
       statusEl.textContent = 'erro ao carregar dados';
     }
-    mascaraData(document.getElementById('meta-data-limite'));
     renderizarMetas();
   }
 
+  mascaraData(document.getElementById('meta-data-limite'));
+  mascaraMoeda(document.getElementById('meta-valor-alvo'));
+  mascaraMoeda(document.getElementById('meta-valor-atual'));
+
   document.getElementById('meta-botao-adicionar').addEventListener('click', async ()=>{
     const nome = document.getElementById('meta-nome').value.trim();
-    const valorAlvo = parseFloat(document.getElementById('meta-valor-alvo').value);
-    const valorAtual = parseFloat(document.getElementById('meta-valor-atual').value) || 0;
+    const valorAlvo = parseDecimal(document.getElementById('meta-valor-alvo').value);
+    const valorAtual = parseDecimal(document.getElementById('meta-valor-atual').value) || 0;
     const dataLimite = converterDataParaISO(document.getElementById('meta-data-limite').value);
     if(!nome || !valorAlvo || valorAlvo<=0){ return; }
     if(dataLimite && dataLimite <= new Date().toISOString().slice(0,10)){ return; }
@@ -121,7 +151,7 @@
           </div>
           <div class="meta-rodape">
             <span>${m.dataLimite ? 'Limite: '+formatarDataBR(m.dataLimite) : 'Sem data limite'}</span>
-            <button class="botao-secundario" data-id="${m.id}">remover</button>
+            <button class="botao-icone botao-perigo" data-id="${m.id}" title="Remover" aria-label="Remover meta ${escaparHtml(m.nome)}">${ICONE_REMVER}</button>
           </div>
         `;
         div.querySelector('button').addEventListener('click', ()=>removerMeta(m.id));
