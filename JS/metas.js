@@ -1,11 +1,15 @@
 (function(){
 
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-  const escaparHtml = (s) => {
-    const div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  };
+  // Escapa &, <, >, " e '. O texto escaping só de &, < e > não bastava: os
+  // mesmos valores são interpolados dentro de atributos (aria-label="..."), e
+  // uma aspa não escapada permitia injetar atributos novos no elemento.
+  const escaparHtml = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
   const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
   const converterDataParaISO = (v) => {
@@ -66,7 +70,7 @@
   const ICONE_REMOVER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 
   if (!auth.isLoggedIn()) {
-    window.location.href = '/Html/login.html';
+    window.location.href = '/login';
     return;
   }
 

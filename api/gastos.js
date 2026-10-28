@@ -1,6 +1,6 @@
 const { query } = require('./_lib/db');
 const { autenticar } = require('./_lib/autenticar');
-const { textoValido, valorValido, dataISOValida, uuidValido } = require('./_lib/validar');
+const { textoValido, valorValido, dataISOValida, uuidValido, categoriaGastoValida } = require('./_lib/validar');
 
 async function handler(req, res) {
   autenticar(req, res, async () => {
@@ -25,7 +25,7 @@ async function handler(req, res) {
         return res.status(400).json({ erro: 'Descrição, categoria, valor e data são obrigatórios' });
       }
       if (!textoValido(descricao, 1, 200)) return res.status(400).json({ erro: 'Descrição inválida (1-200 caracteres)' });
-      if (!textoValido(categoria, 1, 50)) return res.status(400).json({ erro: 'Categoria inválida' });
+      if (!categoriaGastoValida(categoria)) return res.status(400).json({ erro: 'Categoria inválida' });
       if (!valorValido(valor)) return res.status(400).json({ erro: 'Valor inválido' });
       if (!dataISOValida(data)) return res.status(400).json({ erro: 'Data inválida (YYYY-MM-DD)' });
       try {
@@ -47,7 +47,7 @@ async function handler(req, res) {
       }
       if (!uuidValido(id)) return res.status(400).json({ erro: 'ID inválido' });
       if (descricao !== undefined && !textoValido(descricao, 1, 200)) return res.status(400).json({ erro: 'Descrição inválida' });
-      if (categoria !== undefined && !textoValido(categoria, 1, 50)) return res.status(400).json({ erro: 'Categoria inválida' });
+      if (categoria !== undefined && !categoriaGastoValida(categoria)) return res.status(400).json({ erro: 'Categoria inválida' });
       if (valor !== undefined && !valorValido(valor)) return res.status(400).json({ erro: 'Valor inválido' });
       if (data !== undefined && !dataISOValida(data)) return res.status(400).json({ erro: 'Data inválida' });
       try {

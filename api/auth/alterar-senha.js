@@ -13,8 +13,8 @@ async function handler(req, res) {
     return res.status(400).json({ erro: 'Senha atual e nova senha são obrigatórias' });
   }
 
-  if (typeof nova_senha !== 'string' || nova_senha.length < 6 || nova_senha.length > 128) {
-    return res.status(400).json({ erro: 'A nova senha deve ter entre 6 e 128 caracteres' });
+  if (typeof nova_senha !== 'string' || nova_senha.length < 8 || nova_senha.length > 128) {
+    return res.status(400).json({ erro: 'A nova senha deve ter entre 8 e 128 caracteres' });
   }
   if (typeof senha_atual !== 'string' || senha_atual.length > 128) {
     return res.status(400).json({ erro: 'Senha atual inválida' });
@@ -39,8 +39,11 @@ async function handler(req, res) {
 
       const novaSenhaHash = await bcrypt.hash(nova_senha, 12);
 
+      // Incrementar token_version invalida todos os tokens já emitidos: quem
+      // roubou a senha antiga (ou o token de uma sessão antiga) perde o acesso
+      // assim que a senha troca.
       await query(
-        'UPDATE usuarios SET senha_hash = $1 WHERE id = $2',
+        'UPDATE usuarios SET senha_hash = $1, token_version = token_version + 1 WHERE id = $2',
         [novaSenhaHash, req.usuario.id]
       );
 

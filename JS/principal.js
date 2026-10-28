@@ -2,11 +2,15 @@
 
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   const formatarPercentual = (v) => (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
-  const escaparHtml = (s) => {
-    const div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  };
+  // Escapa &, <, >, " e '. O texto escaping só de &, < e > não bastava: os
+  // mesmos valores são interpolados dentro de atributos (aria-label="..."), e
+  // uma aspa não escapada permitia injetar atributos novos no elemento.
+  const escaparHtml = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
   const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
   const converterDataParaISO = (v) => {
@@ -94,7 +98,7 @@
   };
 
   if (!auth.isLoggedIn()) {
-    window.location.href = '/Html/login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -306,7 +310,7 @@
         tr.innerHTML = `
           <td>${formatarDataBR(g.data)}</td>
           <td>${escaparHtml(g.desc)}${g.fixa ? ' <span class="etiqueta etiqueta-fixa">Fixa</span>' : ''}</td>
-          <td><span class="etiqueta" style="background:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}">${g.cat}</span></td>
+          <td><span class="etiqueta" style="background:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_GASTO[g.cat] || '#8A8775'}">${escaparHtml(g.cat)}</span></td>
           <td class="numero">${formatarMoeda(g.valor)}</td>
           <td class="celula-acoes">
             <button class="botao-icone" data-editar="${g.id}" title="Editar" aria-label="Editar ${escaparHtml(g.desc)}">${ICONES.editar}</button>
@@ -371,7 +375,7 @@
     const total = dados.reduce((a,b)=>a+b,0);
     legenda.innerHTML = rotulos.map((l,i)=>{
       const pct = total? (dados[i]/total*100):0;
-      return `<span><span class="ponto-legenda" style="background:${cores[i]}"></span>${l} ${formatarPercentual(pct)}</span>`;
+      return `<span><span class="ponto-legenda" style="background:${cores[i]}"></span>${escaparHtml(l)} ${formatarPercentual(pct)}</span>`;
     }).join('');
   }
 
@@ -447,7 +451,7 @@
         tr.innerHTML = `
           <td>${formatarDataBR(r.data)}</td>
           <td>${escaparHtml(r.desc)}</td>
-          <td><span class="etiqueta" style="background:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}">${r.cat}</span></td>
+          <td><span class="etiqueta" style="background:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}26; color:${CORES_CATEGORIA_RECEITA[r.cat] || '#8A8775'}">${escaparHtml(r.cat)}</span></td>
           <td class="numero">${formatarMoeda(r.valor)}</td>
           <td class="celula-acoes">
             <button class="botao-icone" data-editar="${r.id}" title="Editar" aria-label="Editar ${escaparHtml(r.desc)}">${ICONES.editar}</button>
@@ -512,7 +516,7 @@
     const total = dados.reduce((a,b)=>a+b,0);
     legenda.innerHTML = rotulos.map((l,i)=>{
       const pct = total? (dados[i]/total*100):0;
-      return `<span><span class="ponto-legenda" style="background:${cores[i]}"></span>${l} ${formatarPercentual(pct)}</span>`;
+      return `<span><span class="ponto-legenda" style="background:${cores[i]}"></span>${escaparHtml(l)} ${formatarPercentual(pct)}</span>`;
     }).join('');
   }
 

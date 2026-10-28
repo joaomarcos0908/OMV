@@ -5,7 +5,7 @@
   const alertaCadastro = document.getElementById('alerta-cadastro');
 
   if (auth.isLoggedIn()) {
-    window.location.href = '/index.html';
+    window.location.href = '/app';
     return;
   }
 
@@ -55,7 +55,7 @@
       if (dados) {
         auth.setToken(dados.token);
         auth.setUsuario(dados.usuario);
-        window.location.href = '/index.html';
+        window.location.href = '/app';
       }
     } catch (err) {
       const msg = (err && err.data && err.data.erro) || err.message || 'Erro de conexão. Tente novamente.';

@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# O painel exige login: não faz sentido indexar o conteúdo de uma conta.
+Disallow: /app
+Disallow: /login
+Disallow: /api/
+Disallow: /Html/
+
+Sitemap: https://omv-lake.vercel.app/sitemap.xml

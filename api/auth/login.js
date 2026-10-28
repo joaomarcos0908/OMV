@@ -4,6 +4,14 @@ const { query } = require('../_lib/db');
 const { checkRateLimit } = require('../_lib/rateLimit');
 const { emailValido, normalizarEmail } = require('../_lib/validar');
 
+// Hash descartável de uma senha que ninguém conhece. Serve para gastar o
+// mesmo tempo de bcrypt quando o e-mail não existe na base, para que o
+// tempo de resposta não revele quais e-mails têm conta.
+const HASH_FALSO = '$2a$12$HAPjJEkyeA7cTCpIOZgdtO4ZuomFaHDnfrYibtPvzvkUU/FqLc1XC';
+
+const MAX_TENTATIVAS = 5;
+const BLOQUEIO_MINUTOS = 15;
+
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ erro: 'Método não permitido' });
@@ -30,28 +38,63 @@ async function handler(req, res) {
 
   try {
     const result = await query(
-      'SELECT id, nome, email, senha_hash FROM usuarios WHERE email = $1',
+      'SELECT id, nome, email, senha_hash, token_version, login_falhas, bloqueado_ate FROM usuarios WHERE email = $1',
       [email]
     );
 
     if (result.rows.length === 0) {
+      await bcrypt.compare(senha, HASH_FALSO);
       return res.status(401).json({ erro: 'Credenciais inválidas' });
     }
 
     const usuario = result.rows[0];
+
+    // Conta bloqueada por excesso de tentativas.
+    if (usuario.bloqueado_ate && new Date(usuario.bloqueado_ate).getTime() > Date.now()) {
+      const minutos = Math.max(
+        1,
+        Math.ceil((new Date(usuario.bloqueado_ate).getTime() - Date.now()) / 60000)
+      );
+      return res.status(429).json({
+        erro: `Conta bloqueada temporariamente. Tente novamente em ${minutos} min.`
+      });
+    }
+
     const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
 
     if (!senhaValida) {
+      const falhas = Number(usuario.login_falhas) + 1;
+      if (falhas >= MAX_TENTATIVAS) {
+        await query(
+          `UPDATE usuarios
+              SET login_falhas = 0,
+                  bloqueado_ate = now() + make_interval(mins => $2)
+            WHERE id = $1`,
+          [usuario.id, BLOQUEIO_MINUTOS]
+        );
+        return res.status(429).json({
+          erro: `Conta bloqueada temporariamente por ${BLOQUEIO_MINUTOS} min após ${MAX_TENTATIVAS} tentativas.`
+        });
+      }
+      await query('UPDATE usuarios SET login_falhas = $2 WHERE id = $1', [usuario.id, falhas]);
       return res.status(401).json({ erro: 'Credenciais inválidas' });
     }
 
+    // Login válido: zera o contador de falhas e libera o bloqueio.
+    await query(
+      'UPDATE usuarios SET login_falhas = 0, bloqueado_ate = NULL WHERE id = $1',
+      [usuario.id]
+    );
+
+    const tokenVersion = Number(usuario.token_version) || 1;
+
     const token = jwt.sign(
-      { id: usuario.id, email: usuario.email, nome: usuario.nome },
+      { id: usuario.id, email: usuario.email, nome: usuario.nome, ver: tokenVersion },
       process.env.JWT_SECRET,
       { expiresIn: '7d', algorithm: 'HS256' }
     );
 
-    const { senha_hash, ...usuarioSemSenha } = usuario;
+    const { senha_hash, login_falhas, bloqueado_ate, token_version, ...usuarioSemSenha } = usuario;
 
     return res.status(200).json({ token, usuario: usuarioSemSenha });
   } catch (err) {

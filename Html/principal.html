@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel — OMV | Organiza Minha Vida</title>
+    <meta name="description" content="Painel de controle financeiro pessoal: receitas, despesas e saldo do mês em um só lugar." />
+    <!-- o app exige login: não faz sentido indexar no Google -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://omv-lake.vercel.app/app" />
+    <link rel="icon" href="/assets/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/assets/marca.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/site.webmanifest" />
+    <meta name="theme-color" content="#0E1013" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OMV — Organiza Minha Vida" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Painel — OMV | Organiza Minha Vida" />
+    <meta property="og:description" content="Painel de controle financeiro pessoal: receitas, despesas e saldo do mês em um só lugar." />
+    <meta property="og:url" content="https://omv-lake.vercel.app/app" />
+    <meta property="og:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OMV — Organiza Minha Vida" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Painel — OMV | Organiza Minha Vida" />
+    <meta name="twitter:description" content="Painel de controle financeiro pessoal: receitas, despesas e saldo do mês em um só lugar." />
+    <meta name="twitter:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/CSS/estilosPagSecundarias.css" />
+  </head>
+  <body>
+    <div class="aplicativo aplicativo--largo">
+      <header class="cabecalho-topo">
+        <div>
+          <span class="marca-eyebrow">livro-caixa pessoal</span>
+          <h1>
+            <img
+              class="marca-logo"
+              src="/assets/marca.svg"
+              alt=""
+              width="22"
+              height="22"
+            />
+            OMV
+          </h1>
+        </div>
+        <nav class="menu-abas" aria-label="Navegação principal">
+          <a class="aba-botao ativo" href="/app" aria-current="page">Início</a>
+          <a class="aba-botao" href="/app/investimentos">Investimentos</a>
+          <a class="aba-botao" href="/app/metas">Metas</a>
+        </nav>
+        <span class="status-salvamento" id="status-salvamento"
+          >carregando...</span
+        >
+        <button id="botao-sair" class="botao-voltar botao-perigo">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sair
+        </button>
+      </header>
+
+      <div class="cartao">
+        <div class="cartao-cabecalho">
+          <h2>Resumo Mensal</h2>
+          <div class="campo campo-media" style="margin: 0">
+            <label for="filtro-mes">Mês</label>
+            <select id="filtro-mes"></select>
+          </div>
+        </div>
+        <div
+          class="grade-indicadores grade-indicadores--resumo"
+          id="resumo-indicadores"
+        ></div>
+      </div>
+
+      <div class="grade-dupla">
+        <div class="cartao" id="form-receita">
+          <h2>Nova receita</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label for="receita-descricao">Descrição</label>
+              <input
+                type="text"
+                id="receita-descricao"
+                placeholder="Ex: Salário"
+              />
+            </div>
+            <div class="campo">
+              <label for="receita-categoria">Categoria</label>
+              <select id="receita-categoria">
+                <option>Salário</option>
+                <option>Estágio</option>
+                <option>Freelance</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="campo campo-estreita">
+              <label for="receita-valor">Valor (R$)</label>
+              <input
+                type="text"
+                id="receita-valor"
+                inputmode="decimal"
+                placeholder="0,00"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label for="receita-data">Data</label>
+              <input
+                type="text"
+                id="receita-data"
+                placeholder="dd/mm/aaaa"
+                inputmode="numeric"
+                maxlength="10"
+              />
+            </div>
+          </div>
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="receita-botao-adicionar">
+              Adicionar receita
+            </button>
+          </div>
+        </div>
+
+        <div class="cartao" id="form-gasto">
+          <h2>Nova Despesa</h2>
+          <div class="linha-formulario">
+            <div class="campo">
+              <label for="gasto-descricao">Descrição</label>
+              <input
+                type="text"
+                id="gasto-descricao"
+                placeholder="Ex: Supermercado"
+              />
+            </div>
+            <div class="campo">
+              <label for="gasto-categoria">Categoria</label>
+              <select id="gasto-categoria">
+                <option>Moradia</option>
+                <option>Alimentação</option>
+                <option>Transporte</option>
+                <option>Lazer</option>
+                <option>Saúde</option>
+                <option>Educação</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="campo campo-estreita">
+              <label>Tipo</label>
+              <div class="grupo-radio">
+                <label class="radio-opcao">
+                  <input
+                    type="radio"
+                    name="gasto-tipo"
+                    id="gasto-variavel"
+                    value="variavel"
+                    checked
+                  />
+                  <span>Variável</span>
+                </label>
+                <label class="radio-opcao">
+                  <input
+                    type="radio"
+                    name="gasto-tipo"
+                    id="gasto-fixa"
+                    value="fixa"
+                  />
+                  <span>Fixa</span>
+                </label>
+              </div>
+            </div>
+            <div class="campo campo-estreita">
+              <label for="gasto-valor">Valor (R$)</label>
+              <input
+                type="text"
+                id="gasto-valor"
+                inputmode="decimal"
+                placeholder="0,00"
+              />
+            </div>
+            <div class="campo campo-media">
+              <label for="gasto-data">Data</label>
+              <input
+                type="text"
+                id="gasto-data"
+                placeholder="dd/mm/aaaa"
+                inputmode="numeric"
+                maxlength="10"
+              />
+            </div>
+          </div>
+          <div class="rodape-formulario">
+            <button class="botao-primario" id="gasto-botao-adicionar">
+              Adicionar gasto
+            </button>
+          </div>
+        </div>
+
+        <div class="cartao" id="tabela-receitas">
+          <h2>Lançamentos receitas</h2>
+          <div class="tabela-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th class="numero">Valor</th>
+                  <th class="celula-acoes"></th>
+                </tr>
+              </thead>
+              <tbody id="receita-tabela-corpo"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cartao" id="tabela-gastos">
+          <h2>Lançamentos despesas</h2>
+          <div class="tabela-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th class="numero">Valor</th>
+                  <th class="celula-acoes"></th>
+                </tr>
+              </thead>
+              <tbody id="gasto-tabela-corpo"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="cartao" id="grafico-receitas-card">
+          <h2>Distribuição por categoria (mês selecionado)</h2>
+          <div style="position: relative; height: 240px">
+            <canvas
+              id="grafico-receitas"
+              role="img"
+              aria-label="Gráfico de pizza mostrando a distribuição das receitas por categoria"
+            ></canvas>
+          </div>
+          <div class="legenda" id="legenda-receitas"></div>
+        </div>
+
+        <div class="cartao" id="grafico-gastos-card">
+          <h2>Distribuição por categoria (mês selecionado)</h2>
+          <div style="position: relative; height: 240px">
+            <canvas
+              id="grafico-gastos"
+              role="img"
+              aria-label="Gráfico de pizza mostrando a distribuição dos gastos por categoria"
+            ></canvas>
+          </div>
+          <div class="legenda" id="legenda-gastos"></div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+      integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/JS/auth.js"></script>
+    <script src="/JS/principal.js"></script>
+  </body>
+</html>

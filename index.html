@@ -1,272 +1,399 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OMV - Organiza Minha Vida</title>
+    <title>OMV — Organiza Minha Vida | Controle financeiro pessoal online</title>
+    <meta
+      name="description"
+      content="Controle suas receitas, despesas, investimentos e metas em um só lugar. OMV é um livro-caixa pessoal digital, simples, em português e com cotação automática da carteira."
+    />
+    <meta
+      name="keywords"
+      content="controle financeiro pessoal, organização financeira, livro caixa digital, controle de gastos, planejamento de metas, carteira de investimentos"
+    />
+    <meta name="author" content="OMV — Organiza Minha Vida" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://omv-lake.vercel.app/" />
+    <link rel="icon" href="/assets/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/assets/marca.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/site.webmanifest" />
+    <meta name="theme-color" content="#0E1013" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Open Graph / Twitter -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OMV — Organiza Minha Vida" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta
+      property="og:title"
+      content="OMV — Organiza Minha Vida | Controle financeiro pessoal online"
+    />
+    <meta
+      property="og:description"
+      content="Controle suas receitas, despesas, investimentos e metas em um só lugar. Simples, em português e com cotação automática da carteira."
+    />
+    <meta property="og:url" content="https://omv-lake.vercel.app/" />
+    <meta property="og:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OMV — Organiza Minha Vida" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="OMV — Organiza Minha Vida | Controle financeiro pessoal online"
+    />
+    <meta
+      name="twitter:description"
+      content="Controle suas receitas, despesas, investimentos e metas em um só lugar. Simples, em português e com cotação automática da carteira."
+    />
+    <meta name="twitter:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="CSS/estilosPagSecundarias.css" />
+    <link rel="stylesheet" href="/CSS/estilosLanding.css" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://omv-lake.vercel.app/#website",
+            "url": "https://omv-lake.vercel.app/",
+            "name": "OMV — Organiza Minha Vida",
+            "inLanguage": "pt-BR",
+            "publisher": { "@id": "https://omv-lake.vercel.app/#app" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://omv-lake.vercel.app/#app",
+            "name": "OMV — Organiza Minha Vida",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web",
+            "url": "https://omv-lake.vercel.app/",
+            "logo": "https://omv-lake.vercel.app/assets/icon-512.png",
+            "image": "https://omv-lake.vercel.app/assets/og-image.png",
+            "description": "Aplicativo web de controle financeiro pessoal com receitas, despesas, carteira de investimentos com cotação automática e metas com barra de progresso.",
+            "inLanguage": "pt-BR",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "BRL"
+            },
+            "featureList": [
+              "Registro de receitas e despesas por mês e categoria",
+              "Gráficos de composição de gastos e receitas",
+              "Carteira de investimentos com cotação automática",
+              "Metas financeiras com barra de progresso",
+              "Metas com limite de data"
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://omv-lake.vercel.app/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "O que é o OMV?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "OMV (Organiza Minha Vida) é um livro-caixa pessoal digital. Você registra receitas e despesas, acompanha o saldo do mês, organiza sua carteira de investimentos e define metas financeiras — tudo em uma conta só."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Preciso pagar alguma coisa?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Não. O OMV é gratuito e roda direto no navegador, sem aplicativo para instalar."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Como funciona a cotação dos investimentos?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Ao cadastrar um ativo, a cotação é buscada automaticamente de fontes públicas. Você também pode atualizar a cotação manualmente a qualquer momento."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Meus dados ficam protegidos?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Sim. A senha é armazenada apenas como hash bcrypt, a comunicação é feita por HTTPS e cada usuário só enxerga os próprios lançamentos."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Preciso de conhecimento em finanças?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Não. A interface mostra o saldo, a evolução do mês e o quanto falta para cada meta em linguagem simples, com os valores calculados automaticamente."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
-    <div class="aplicativo aplicativo--largo">
-      <header class="cabecalho-topo">
-        <div>
-          <span class="marca-eyebrow">livro-caixa pessoal</span>
-          <h1>
-            <svg
-              class="marca-logo"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3 17.5 9 11l4 4 8-8.5" />
-              <path d="M15 6.5h6v6" />
-            </svg>
-            OMV
-          </h1>
-        </div>
-        <nav class="menu-abas" aria-label="Navegação principal">
-          <a class="aba-botao ativo" aria-current="page">Início</a>
-          <a class="aba-botao" href="Html/investimentos.html">Investimentos</a>
-          <a class="aba-botao" href="Html/metas.html">Metas</a>
+    <header class="topo">
+      <div class="container topo-inner">
+        <a class="topo-marca" href="/">
+          <img src="/assets/marca.svg" alt="" width="26" height="26" />
+          OMV
+        </a>
+        <nav class="topo-links" aria-label="Navegação do site">
+          <a href="#recursos">Recursos</a>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#perguntas">Perguntas</a>
+          <a class="btn btn-primario" href="/login">Entrar</a>
         </nav>
-        <span class="status-salvamento" id="status-salvamento"
-          >carregando...</span
-        >
-        <button
-          id="botao-sair"
-          class="botao-voltar botao-perigo"
-          onclick="auth.logout()"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Sair
-        </button>
-      </header>
-
-      <div class="cartao">
-        <div class="cartao-cabecalho">
-          <h2>Resumo Mensal</h2>
-          <div class="campo campo-media" style="margin: 0">
-            <label for="filtro-mes">Mês</label>
-            <select id="filtro-mes"></select>
-          </div>
-        </div>
-        <div
-          class="grade-indicadores grade-indicadores--resumo"
-          id="resumo-indicadores"
-        ></div>
       </div>
+    </header>
 
-      <div class="grade-dupla">
-        <div class="cartao" id="form-receita">
-          <h2>Nova receita</h2>
-          <div class="linha-formulario">
-            <div class="campo">
-              <label for="receita-descricao">Descrição</label>
-              <input
-                type="text"
-                id="receita-descricao"
-                placeholder="Ex: Salário"
-              />
-            </div>
-            <div class="campo">
-              <label for="receita-categoria">Categoria</label>
-              <select id="receita-categoria">
-                <option>Salário</option>
-                <option>Estágio</option>
-                <option>Freelance</option>
-                <option>Outros</option>
-              </select>
-            </div>
-            <div class="campo campo-estreita">
-              <label for="receita-valor">Valor (R$)</label>
-              <input
-                type="text"
-                id="receita-valor"
-                inputmode="decimal"
-                placeholder="0,00"
-              />
-            </div>
-            <div class="campo campo-media">
-              <label for="receita-data">Data</label>
-              <input
-                type="text"
-                id="receita-data"
-                placeholder="dd/mm/aaaa"
-                inputmode="numeric"
-                maxlength="10"
-              />
-            </div>
+    <main>
+      <section class="hero">
+        <div class="container">
+          <span class="selo">
+            <strong>Grátis</strong> · funciona direto no navegador
+          </span>
+          <h1>Organize seu dinheiro <em>sem complicação</em></h1>
+          <p class="hero-sub">
+            O OMV é um livro-caixa pessoal digital: registre receitas e
+            despesas, acompanhe o saldo do mês, sua carteira de investimentos e
+            o progresso de cada meta — tudo em uma conta só.
+          </p>
+          <div class="hero-acoes">
+            <a class="btn btn-primario" href="/login">Criar conta grátis</a>
+            <a class="btn btn-secundario" href="/app">Ver o painel</a>
           </div>
-          <div class="rodape-formulario">
-            <button class="botao-primario" id="receita-botao-adicionar">
-              Adicionar receita
-            </button>
-          </div>
+          <p class="hero-nota">Sem aplicativo para instalar. Sem cartão de crédito.</p>
         </div>
+      </section>
 
-        <div class="cartao" id="form-gasto">
-          <h2>Nova Despesa</h2>
-          <div class="linha-formulario">
-            <div class="campo">
-              <label for="gasto-descricao">Descrição</label>
-              <input
-                type="text"
-                id="gasto-descricao"
-                placeholder="Ex: Supermercado"
-              />
-            </div>
-            <div class="campo">
-              <label for="gasto-categoria">Categoria</label>
-              <select id="gasto-categoria">
-                <option>Moradia</option>
-                <option>Alimentação</option>
-                <option>Transporte</option>
-                <option>Lazer</option>
-                <option>Saúde</option>
-                <option>Educação</option>
-                <option>Outros</option>
-              </select>
-            </div>
-            <div class="campo campo-estreita">
-              <label>Tipo</label>
-              <div class="grupo-radio">
-                <label class="radio-opcao">
-                  <input
-                    type="radio"
-                    name="gasto-tipo"
-                    id="gasto-variavel"
-                    value="variavel"
-                    checked
-                  />
-                  <span>Variável</span>
-                </label>
-                <label class="radio-opcao">
-                  <input
-                    type="radio"
-                    name="gasto-tipo"
-                    id="gasto-fixa"
-                    value="fixa"
-                  />
-                  <span>Fixa</span>
-                </label>
+      <section class="secao" id="recursos">
+        <div class="container">
+          <div class="secao-titulo">
+            <h2>Tudo o que o seu controle financeiro precisa</h2>
+            <p>
+              Um painel completo, feito para quem quer entender para onde o
+              dinheiro está indo — não para quem quer virar contador.
+            </p>
+          </div>
+          <div class="grade">
+            <article class="recurso">
+              <div class="recurso-icone" aria-hidden="true">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="4" width="18" height="17" rx="2" />
+                  <path d="M8 2v4M16 2v4M3 10h18" />
+                </svg>
               </div>
+              <h3>Receitas e despesas por mês</h3>
+              <p>
+                Lance o que entrou e o que saiu, com categoria, valor e data.
+                Saldo, ticket médio e os fixos do mês ficam visíveis na hora.
+              </p>
+            </article>
+
+            <article class="recurso">
+              <div class="recurso-icone" aria-hidden="true">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M3 17.5 9 11l4 4 8-8.5" />
+                  <path d="M15 6.5h6v6" />
+                </svg>
+              </div>
+              <h3>Investimentos com cotação automática</h3>
+              <p>
+                Ações, FIIs, fundos, renda fixa e cripto na mesma carteira.
+                A cotação de ativos de bolsa é atualizada sozinha.
+              </p>
+            </article>
+
+            <article class="recurso">
+              <div class="recurso-icone" aria-hidden="true">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <circle cx="12" cy="12" r="4" />
+                  <circle cx="12" cy="12" r="1" />
+                </svg>
+              </div>
+              <h3>Metas com progresso visível</h3>
+              <p>
+                Quanto falta para a viagem, para a reserva ou para o carro.
+                Cada meta mostra o valor atual, o alvo e a data limite.
+              </p>
+            </article>
+
+            <article class="recurso">
+              <div class="recurso-icone" aria-hidden="true">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+                </svg>
+              </div>
+              <h3>Gráficos que resumem o mês</h3>
+              <p>
+                Onde o dinheiro foi gasto e de onde veio, em gráficos de rosca
+                com o percentual de cada categoria.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="secao" id="como-funciona">
+        <div class="container">
+          <div class="secao-titulo">
+            <h2>Três passos e você começa</h2>
+            <p>Sem planilha, sem configuração complicada, sem jargon.</p>
+          </div>
+          <div class="passos">
+            <div class="passo">
+              <h3>Crie sua conta</h3>
+              <p>
+                Nome, e-mail e senha. Leva menos de um minuto e seus dados
+                ficam vinculados só a você.
+              </p>
             </div>
-            <div class="campo campo-estreita">
-              <label for="gasto-valor">Valor (R$)</label>
-              <input
-                type="text"
-                id="gasto-valor"
-                inputmode="decimal"
-                placeholder="0,00"
-              />
+            <div class="passo">
+              <h3>Lance o mês</h3>
+              <p>
+                Registre receitas e despesas, escolha a categoria e acompanhe o
+                saldo mudando conforme você lança.
+              </p>
             </div>
-            <div class="campo campo-media">
-              <label for="gasto-data">Data</label>
-              <input
-                type="text"
-                id="gasto-data"
-                placeholder="dd/mm/aaaa"
-                inputmode="numeric"
-                maxlength="10"
-              />
+            <div class="passo">
+              <h3>Acompanhe e projete</h3>
+              <p>
+                Monte a carteira, defina metas e veja o quanto falta para
+                chegar lá.
+              </p>
             </div>
           </div>
-          <div class="rodape-formulario">
-            <button class="botao-primario" id="gasto-botao-adicionar">
-              Adicionar gasto
-            </button>
-          </div>
         </div>
+      </section>
 
-        <div class="cartao" id="tabela-receitas">
-          <h2>Lançamentos receitas</h2>
-          <div class="tabela-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Descrição</th>
-                  <th>Categoria</th>
-                  <th class="numero">Valor</th>
-                  <th class="celula-acoes"></th>
-                </tr>
-              </thead>
-              <tbody id="receita-tabela-corpo"></tbody>
-            </table>
+      <section class="secao" id="perguntas">
+        <div class="container">
+          <div class="secao-titulo">
+            <h2>Perguntas frequentes</h2>
+            <p>As dúvidas que mais aparecem antes de começar.</p>
+          </div>
+          <div class="faq">
+            <details class="faq-item">
+              <summary>O que é o OMV?</summary>
+              <p>
+                OMV (Organiza Minha Vida) é um livro-caixa pessoal digital. Você
+                registra receitas e despesas, acompanha o saldo do mês,
+                organiza sua carteira de investimentos e define metas
+                financeiras — tudo em uma conta só.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>Preciso pagar alguma coisa?</summary>
+              <p>
+                Não. O OMV é gratuito e roda direto no navegador, sem aplicativo
+                para instalar.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>Como funciona a cotação dos investimentos?</summary>
+              <p>
+                Ao cadastrar um ativo, a cotação é buscada automaticamente de
+                fontes públicas. Você também pode atualizar a cotação
+                manualmente a qualquer momento.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>Meus dados ficam protegidos?</summary>
+              <p>
+                Sim. A senha é armazenada apenas como hash bcrypt, a
+                comunicação é feita por HTTPS e cada usuário só enxerga os
+                próprios lançamentos.
+              </p>
+            </details>
+            <details class="faq-item">
+              <summary>Preciso de conhecimento em finanças?</summary>
+              <p>
+                Não. A interface mostra o saldo, a evolução do mês e o quanto
+                falta para cada meta em linguagem simples, com os valores
+                calculados automaticamente.
+              </p>
+            </details>
           </div>
         </div>
+      </section>
 
-        <div class="cartao" id="tabela-gastos">
-          <h2>Lançamentos despesas</h2>
-          <div class="tabela-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Descrição</th>
-                  <th>Categoria</th>
-                  <th class="numero">Valor</th>
-                  <th class="celula-acoes"></th>
-                </tr>
-              </thead>
-              <tbody id="gasto-tabela-corpo"></tbody>
-            </table>
+      <section class="secao">
+        <div class="container">
+          <div class="cta">
+            <h2>Comece a organizar seu dinheiro hoje</h2>
+            <p>
+              Crie sua conta grátis e lance o primeiro mês em menos de cinco
+              minutos.
+            </p>
+            <a class="btn btn-primario" href="/login">Criar conta grátis</a>
           </div>
         </div>
+      </section>
+    </main>
 
-        <div class="cartao" id="grafico-receitas-card">
-          <h2>Distribuição por categoria (mês selecionado)</h2>
-          <div style="position: relative; height: 240px">
-            <canvas
-              id="grafico-receitas"
-              role="img"
-              aria-label="Gráfico de pizza mostrando a distribuição das receitas por categoria"
-            ></canvas>
-          </div>
-          <div class="legenda" id="legenda-receitas"></div>
-        </div>
-
-        <div class="cartao" id="grafico-gastos-card">
-          <h2>Distribuição por categoria (mês selecionado)</h2>
-          <div style="position: relative; height: 240px">
-            <canvas
-              id="grafico-gastos"
-              role="img"
-              aria-label="Gráfico de pizza mostrando a distribuição dos gastos por categoria"
-            ></canvas>
-          </div>
-          <div class="legenda" id="legenda-gastos"></div>
-        </div>
+    <footer class="rodape">
+      <div class="container rodape-inner">
+        <span>© <span id="ano">2026</span> OMV — Organiza Minha Vida</span>
+        <nav class="rodape-links" aria-label="Links do rodapé">
+          <a href="/">Início</a>
+          <a href="/login">Entrar</a>
+          <a href="/app">Painel</a>
+        </nav>
       </div>
-    </div>
-    <script
-      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
-      integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
-      crossorigin="anonymous"
-    ></script>
-    <script src="JS/auth.js"></script>
-    <script src="JS/principal.js"></script>
+    </footer>
+
+    <script src="/JS/landing.js"></script>
   </body>
 </html>

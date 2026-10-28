@@ -2,11 +2,15 @@
 
   const formatarMoeda = (v) => 'R$ ' + (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
   const formatarPercentual = (v) => (Number(v)||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
-  const escaparHtml = (s) => {
-    const div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-  };
+  // Escapa &, <, >, " e '. O texto escaping só de &, < e > não bastava: os
+  // mesmos valores são interpolados dentro de atributos (aria-label="..."), e
+  // uma aspa não escapada permitia injetar atributos novos no elemento.
+  const escaparHtml = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
   const formatarDataBR = (iso) => (iso||'').split('-').reverse().join('/');
   const formatarDataInput = (iso) => iso ? iso.split('-').reverse().join('/') : '';
   const converterDataParaISO = (v) => {
@@ -72,7 +76,7 @@
   };
 
   if (!auth.isLoggedIn()) {
-    window.location.href = '/Html/login.html';
+    window.location.href = '/login';
     return;
   }
 
@@ -640,7 +644,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${escaparHtml(i.nome)}${auto ? ' <span class="selo-cotacao automatica">auto</span>' : ' <span class="selo-cotacao manual">manual</span>'}</td>
-        <td><span class="etiqueta" style="background:${CORES_TIPO[i.tipo] || '#8A8775'}26; color:${CORES_TIPO[i.tipo] || '#8A8775'}">${i.tipo}</span></td>
+        <td><span class="etiqueta" style="background:${CORES_TIPO[i.tipo] || '#8A8775'}26; color:${CORES_TIPO[i.tipo] || '#8A8775'}">${escaparHtml(i.tipo)}</span></td>
         <td class="numero">${formatarMoeda(investido)}</td>
         <td class="numero">${formatarMoeda(atual)}</td>
         <td class="numero ${retorno >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(retorno)} (${formatarPercentual(retornoPct)})</td>
@@ -707,7 +711,7 @@
     const total = dados.reduce((a,b)=>a+b,0);
     legendaEl.innerHTML = rotulos.map((l,i)=>{
       const pct = total ? (dados[i]/total*100) : 0;
-      return '<span><span class="ponto-legenda" style="background:'+cores[i]+'"></span>'+l+' '+formatarPercentual(pct)+'</span>';
+      return '<span><span class="ponto-legenda" style="background:'+cores[i]+'"></span>'+escaparHtml(l)+' '+formatarPercentual(pct)+'</span>';
     }).join('');
   }
 

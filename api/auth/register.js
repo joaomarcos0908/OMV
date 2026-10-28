@@ -24,8 +24,8 @@ async function handler(req, res) {
   if (!emailValido(email)) {
     return res.status(400).json({ erro: 'Email inválido' });
   }
-  if (typeof senha !== 'string' || senha.length < 6 || senha.length > 128) {
-    return res.status(400).json({ erro: 'A senha deve ter entre 6 e 128 caracteres' });
+  if (typeof senha !== 'string' || senha.length < 8 || senha.length > 128) {
+    return res.status(400).json({ erro: 'A senha deve ter entre 8 e 128 caracteres' });
   }
 
   try {

@@ -22,11 +22,14 @@ function getOrCreatePool() {
 
 const SQL_SCHEMA = `
   CREATE TABLE IF NOT EXISTS usuarios (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nome        TEXT NOT NULL,
-    email       VARCHAR(190) NOT NULL UNIQUE,
-    senha_hash  TEXT NOT NULL,
-    criado_em   TIMESTAMPTZ NOT NULL DEFAULT now()
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome          TEXT NOT NULL,
+    email         VARCHAR(190) NOT NULL UNIQUE,
+    senha_hash    TEXT NOT NULL,
+    token_version INTEGER NOT NULL DEFAULT 1,
+    login_falhas  INTEGER NOT NULL DEFAULT 0,
+    bloqueado_ate TIMESTAMPTZ,
+    criado_em     TIMESTAMPTZ NOT NULL DEFAULT now()
   );
 
   CREATE TABLE IF NOT EXISTS gastos (
@@ -88,6 +91,14 @@ const COLUNAS_NUMERICAS = {
   valor_aplicado: [14, 2]
 };
 
+// Colunas de segurança adicionadas depois da criação do banco. IF NOT EXISTS
+// mantém a migração idempotente e segura para rodar a cada cold start.
+const COLUNAS_USUARIOS = `
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS token_version INTEGER NOT NULL DEFAULT 1;
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS login_falhas  INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS bloqueado_ate TIMESTAMPTZ;
+`;
+
 async function aplicarMigracoesInvestimentos(p) {
   const { rows } = await p.query(
     `SELECT column_name, numeric_precision AS p, numeric_scale AS s
@@ -112,6 +123,7 @@ async function garantirSchema() {
     const p = getOrCreatePool();
     prontoSchema = p
       .query(SQL_SCHEMA)
+      .then(() => p.query(COLUNAS_USUARIOS))
       .then(() => aplicarMigracoesInvestimentos(p))
       .then(() => true)
       .catch((err) => {

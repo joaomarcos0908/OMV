@@ -35,6 +35,27 @@ function uuidValido(v) {
 function normalizarEmail(v) {
   return String(v || '').trim().toLowerCase();
 }
+
+// As categorias e os tipos vêm de <select> no front, mas a API é pública: sem
+// uma lista fechada aqui, qualquer string (inclusive HTML) era aceita e
+// depois renderizada na tela. Manter a lista idêntica aos <option> dos HTMLs.
+const CATEGORIAS_GASTO = ['Moradia', 'Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Outros'];
+const CATEGORIAS_RECEITA = ['Salário', 'Estágio', 'Freelance', 'Outros'];
+const TIPOS_INVESTIMENTO = ['Ações', 'FIIs', 'Renda Fixa', 'Tesouro Direto', 'Criptomoedas', 'Fundos', 'Outros'];
+
+function estaNaLista(v, lista) {
+  return typeof v === 'string' && lista.includes(v.trim());
+}
+function categoriaGastoValida(v) {
+  return estaNaLista(v, CATEGORIAS_GASTO);
+}
+function categoriaReceitaValida(v) {
+  return estaNaLista(v, CATEGORIAS_RECEITA);
+}
+function tipoInvestimentoValido(v) {
+  return estaNaLista(v, TIPOS_INVESTIMENTO);
+}
+
 module.exports = {
   emailValido,
   textoValido,
@@ -44,4 +65,7 @@ module.exports = {
   dataISOopcional,
   uuidValido,
   normalizarEmail,
+  categoriaGastoValida,
+  categoriaReceitaValida,
+  tipoInvestimentoValido,
 };

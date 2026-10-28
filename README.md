@@ -5,9 +5,10 @@ Hospedagem: Vercel https://omv-lake.vercel.app/
 
 ## Funcionalidades
 
-A aplicação é organizada em **3 páginas**:
+A aplicação é organizada em **3 páginas de app** + uma **landing page pública**:
 
-- **Página principal (`index.html`)** — tudo que envolve o fluxo mensal em uma única tela:
+- **Landing (`index.html`, em `/`)** — página pública indexável, com descrição do produto, recursos, passo a passo, FAQ (FAQPage) e chamadas para o login. É o que o Google indexa.
+- **Painel (`Html/principal.html`, em `/app`)** — tudo que envolve o fluxo mensal em uma única tela:
   - **Resumo mensal** — indicadores de receitas, despesas e saldo do mês
     - Layout em duas colunas: receitas à esquerda, gastos à direita, com resumo mensal centralizado no topo
   - **Receitas** — lançamentos por categoria, tabela com editar/remover e gráfico de distribuição
@@ -15,13 +16,16 @@ A aplicação é organizada em **3 páginas**:
   - Campos em R$ com máscara automática (1.234,56)
   - **Seletor de mês unificado** — um único filtro controla resumo, tabelas e gráficos
   - Botões de navegação no topo para **Investimentos** e **Metas**
-- **Investimentos (`Html/investimentos.html`)** — carteira completa com suporte a:
+- **Investimentos (`Html/investimentos.html`, em `/app/investimentos`)** — carteira completa com suporte a:
   - **Ações, FIIs e fundos** — cotação automática em BRL
   - **Criptomoedas** — cotação automática em BRL, convertida pela taxa do Banco Central
   - Cotações buscadas em lote por `api/cotacoes.js`, com cache de 60s no servidor
   - **Renda Fixa** — cálculo automático do valor atual com base em CDI, Selic, taxa prefixada ou IPCA+
   - Gráficos de distribuição da carteira e retorno por ativo
-- **Metas (`Html/metas.html`)** — acompanhamento de objetivos financeiros com barra de progresso
+- **Metas (`Html/metas.html`, em `/app/metas`)** — acompanhamento de objetivos financeiros com barra de progresso
+- **Login / cadastro (`Html/login.html`, em `/login`)**
+
+As páginas do app e o login são marcadas com `noindex` e bloqueadas no `robots.txt`: só a landing entra no índice do Google.
 
 ## Tecnologias
 
@@ -32,11 +36,55 @@ A aplicação é organizada em **3 páginas**:
 - Backend serverless (Vercel Functions) + PostgreSQL — autenticação e persistência por usuário
 - APIs públicas: Yahoo Finance (cotações de Ações/FIIs/cripto), CoinGecko (fallback de cripto), Banco Central do Brasil (CDI, Selic, IPCA, dólar)
 
+## Rotas
+
+O `vercel.json` expõe URLs amigáveis com `rewrites` (os arquivos em `Html/` continuam existindo com os mesmos nomes):
+
+| URL pública          | Arquivo servido         |
+| -------------------- | ----------------------- |
+| `/`                  | `index.html` (landing)  |
+| `/app`               | `Html/principal.html`   |
+| `/app/investimentos` | `Html/investimentos.html`|
+| `/app/metas`         | `Html/metas.html`       |
+| `/login`             | `Html/login.html`       |
+
+Por isso, **todos os caminhos de asset e link nos HTMLs e JS são absolutos** (`/CSS/...`, `/JS/...`, `/app`, `/login`).
+
+## Segurança
+
+- Senhas com hash **bcrypt** (custo 12); nunca retornadas pela API
+- **JWT HS256** com claim `ver` = `token_version` do usuário. Trocar a senha incrementa o `token_version` e **revoga na hora todos os tokens emitidos antes** (inclusive sessões abertas em outros dispositivos)
+- **Bloqueio de conta**: 5 tentativas erradas travam o login por 15 minutos; o login válido zera o contador
+- **Rate limit** por IP nas rotas de autenticação
+- **Allowlist de categorias e tipos** no servidor (`api/_lib/validar.js`), idêntica às opções dos formulários — a API não aceita mais texto livre nesses campos
+- **Escape de HTML** em todo dado vindo do banco antes de ir para `innerHTML` (inclusive aspas, para não quebrar `aria-label` e permitir injeção de atributos)
+- **CSP** sem `unsafe-inline` em `script-src`: nenhum `onclick` inline no código
+- Cabeçalhos: `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`
+
+## SEO
+
+- Landing em `/` com title, description, canonical, Open Graph e Twitter Card
+- JSON-LD: `WebSite`, `SoftwareApplication` e `FAQPage`
+- `robots.txt` e `sitemap.xml` na raiz
+- Ícones: `favicon.ico`, PNGs de 16/32/48/180/192/512, `apple-touch-icon`, `site.webmanifest` e `og-image.png` (1200×630)
+- Os ícones são gerados a partir de `assets/marca.svg` com `npm run gerar-icones`
+
 ## Como usar
 
-1. Acesse a aplicação e faça login (a raiz redireciona para `Html/login.html`)
-2. Livre para navegar entre as páginas pelos botões no topo
-3. O seletor de mês filtra todos os dados da página principal de uma vez
+1. Acesse a landing page em `/` e clique em **Criar conta grátis** (vai para `/login`)
+2. Faça login ou cadastro
+3. Navegue entre as páginas pelos botões no topo
+4. O seletor de mês filtra todos os dados da página principal de uma vez
+
+## Desenvolvimento
+
+```bash
+npm install          # dependências
+npm run checar       # sintaxe, JSON, assets e allowlists
+npm run gerar-icones # regenera PNGs/ICO/OG a partir de assets/marca.svg
+```
+
+Variáveis de ambiente (Vercel): `DATABASE_URL` e `JWT_SECRET`.
 
 > Para hospedar online (Vercel, etc.), basta fazer upload de todos os arquivos mantendo a estrutura de pastas.
 
@@ -44,8 +92,12 @@ A aplicação é organizada em **3 páginas**:
 
 ```
 OMV/
-├── index.html            # Página principal  (resumo + receitas + gastos)
+├── index.html            # Landing page pública (indexável)
+├── robots.txt
+├── sitemap.xml
+├── vercel.json           # Rewrites, redirects e cabeçalhos (CSP)
 ├── Html/
+│   ├── principal.html    # Painel: resumo + receitas + gastos
 │   ├── login.html        # Login / cadastro
 │   ├── investimentos.html# Carteira de investimentos
 │   └── metas.html        # Metas financeiras
@@ -54,10 +106,29 @@ OMV/
 │   ├── principal.js      # Lógica da página principal
 │   ├── investimentos.js
 │   ├── metas.js
-│   └── login.js
+│   ├── login.js
+│   └── landing.js
 ├── CSS/                  # Folhas de estilo
+├── assets/               # Marca, ícones e imagem social
+├── scripts/
+│   ├── gerar-icones.mjs  # Gera favicons/PNG/ICO/OG a partir do SVG
+│   └── checar.mjs        # Verificações locais
 ├── api/                  # Backend serverless (Vercel Functions)
+│   ├── _lib/
+│   │   ├── db.js         # Pool Postgres + migrações idempotentes
+│   │   ├── autenticar.js # Valida JWT e token_version
+│   │   ├── rateLimit.js
+│   │   └── validar.js    # Validações e allowlists
+│   ├── auth/
+│   │   ├── login.js
+│   │   ├── register.js
+│   │   ├── alterar-senha.js
+│   │   └── me.js
 │   ├── cotacoes.js       # Proxy de cotações (Yahoo + fallback CoinGecko)
+│   ├── gastos.js
+│   ├── receitas.js
+│   ├── investimentos.js
+│   └── metas.js
 └── README.md
 ```
 

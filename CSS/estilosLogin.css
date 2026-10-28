@@ -2,6 +2,17 @@
   text-align: left;
 }
 
+/* Logo grande no topo da tela de login. alt="" no <img>: o nome da marca já
+   está no <h1> logo abaixo, então a imagem é decorativa para o leitor de
+   tela. */
+.marca-logo--login {
+  width: 56px;
+  height: 56px;
+  display: block;
+  margin: 0 auto 16px;
+  object-fit: contain;
+}
+
 .login-card h2 {
   text-align: center;
   margin-bottom: 24px;

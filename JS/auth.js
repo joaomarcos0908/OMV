@@ -2,6 +2,11 @@
   const API_BASE = '/api';
   const TOKEN_KEY = 'omv_token';
   const USUARIO_KEY = 'omv_usuario';
+  // URLs canônicas do app. São absolutas porque as páginas são servidas em
+  // /app, /app/investimentos e /login (via rewrites do Vercel): um caminho
+  // relativo quebraria ao mudar a URL pública.
+  const URL_LOGIN = '/login';
+  const URL_APP = '/app';
 
   function getToken() { return localStorage.getItem(TOKEN_KEY); }
   function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
@@ -10,7 +15,7 @@
   function setUsuario(u) { localStorage.setItem(USUARIO_KEY, JSON.stringify(u)); }
   function clearUsuario() { localStorage.removeItem(USUARIO_KEY); }
   function isLoggedIn() { return !!getToken(); }
-  function logout() { clearToken(); clearUsuario(); window.location.href = '/Html/login.html'; }
+  function logout() { clearToken(); clearUsuario(); window.location.href = URL_LOGIN; }
 
   async function apiFetch(path, options) {
     options = options || {};
@@ -25,8 +30,8 @@
     try { data = await res.json(); } catch(e) { data = {}; }
     if (res.status === 401) {
       clearToken(); clearUsuario();
-      if (!window.location.pathname.endsWith('/Html/login.html') && !window.location.pathname.endsWith('/login.html')) {
-        window.location.href = '/Html/login.html';
+      if (!window.location.pathname.endsWith('/login') && !window.location.pathname.endsWith('/login.html')) {
+        window.location.href = URL_LOGIN;
         return null;
       }
     }
@@ -37,6 +42,20 @@
       throw err;
     }
     return data;
+  }
+
+  // O botão "Sair" é ligado aqui em vez de onclick inline: a CSP do projeto
+  // não usa 'unsafe-inline' em script-src, e atributo onclick só funciona
+  // com ele.
+  function ligarBotaoSair() {
+    const botao = document.getElementById('botao-sair');
+    if (botao) botao.addEventListener('click', logout);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ligarBotaoSair);
+  } else {
+    ligarBotaoSair();
   }
 
   window.auth = {

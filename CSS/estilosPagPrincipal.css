@@ -68,6 +68,13 @@ body {
   margin-bottom: 24px;
 }
 
+.marca-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
 .cabecalho-topo .marca-eyebrow {
   display: block;
   font-family: var(--fonte-dados);

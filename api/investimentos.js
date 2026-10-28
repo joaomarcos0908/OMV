@@ -1,6 +1,6 @@
 const { query } = require('./_lib/db');
 const { autenticar } = require('./_lib/autenticar');
-const { textoValido, valorOpcionalValido, dataISOopcional, uuidValido } = require('./_lib/validar');
+const { textoValido, valorOpcionalValido, dataISOopcional, uuidValido, tipoInvestimentoValido } = require('./_lib/validar');
 
 // Aliases camelCase precisam de aspas duplas: sem elas o PostgreSQL dobra o
 // identificador para minúsculas e devolve "precomedio" em vez de "precoMedio",
@@ -30,7 +30,7 @@ async function handler(req, res) {
         return res.status(400).json({ erro: 'Nome e tipo são obrigatórios' });
       }
       if (!textoValido(nome, 1, 100)) return res.status(400).json({ erro: 'Nome inválido (1-100)' });
-      if (!textoValido(tipo, 1, 50)) return res.status(400).json({ erro: 'Tipo inválido' });
+      if (!tipoInvestimentoValido(tipo)) return res.status(400).json({ erro: 'Tipo inválido' });
       if (quantidade !== undefined && quantidade !== null && quantidade !== '' && !valorOpcionalValido(quantidade)) return res.status(400).json({ erro: 'Quantidade inválida' });
       if (precoMedio !== undefined && precoMedio !== null && precoMedio !== '' && !valorOpcionalValido(precoMedio)) return res.status(400).json({ erro: 'Preço médio inválido' });
       if (valorAplicado !== undefined && valorAplicado !== null && valorAplicado !== '' && !valorOpcionalValido(valorAplicado)) return res.status(400).json({ erro: 'Valor aplicado inválido' });
@@ -55,7 +55,7 @@ async function handler(req, res) {
       }
       if (!uuidValido(id)) return res.status(400).json({ erro: 'ID inválido' });
       if (nome !== undefined && !textoValido(nome, 1, 100)) return res.status(400).json({ erro: 'Nome inválido' });
-      if (tipo !== undefined && !textoValido(tipo, 1, 50)) return res.status(400).json({ erro: 'Tipo inválido' });
+      if (tipo !== undefined && !tipoInvestimentoValido(tipo)) return res.status(400).json({ erro: 'Tipo inválido' });
       try {
         const result = await query(
           `UPDATE investimentos SET nome = $1, tipo = $2, cotacao_atual = $3, cotacao_automatica = $4, ultima_atualizacao = $5, quantidade = $6, preco_medio = $7, data_aplicacao = $8, valor_aplicado = $9, tipo_rendimento = $10, taxa = $11 WHERE id = $12 AND usuario_id = $13 RETURNING ${COLUNAS}`,

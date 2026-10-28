@@ -1,13 +1,37 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OMV - Investimentos</title>
+    <title>Investimentos — OMV | Organiza Minha Vida</title>
+    <meta name="description" content="Carteira de investimentos com cotação automática de ações, FIIs, fundos e criptomoedas, em reais." />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href="https://omv-lake.vercel.app/app/investimentos" />
+    <link rel="icon" href="/assets/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/assets/marca.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="manifest" href="/assets/site.webmanifest" />
+    <meta name="theme-color" content="#0E1013" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="OMV — Organiza Minha Vida" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content="Investimentos — OMV | Organiza Minha Vida" />
+    <meta property="og:description" content="Carteira de investimentos com cotação automática de ações, FIIs, fundos e criptomoedas, em reais." />
+    <meta property="og:url" content="https://omv-lake.vercel.app/app/investimentos" />
+    <meta property="og:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="OMV — Organiza Minha Vida" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Investimentos — OMV | Organiza Minha Vida" />
+    <meta name="twitter:description" content="Carteira de investimentos com cotação automática de ações, FIIs, fundos e criptomoedas, em reais." />
+    <meta name="twitter:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../CSS/estilosPagSecundarias.css" />
+    <link rel="stylesheet" href="/CSS/estilosPagSecundarias.css" />
   </head>
   <body>
     <div class="aplicativo">
@@ -15,22 +39,19 @@
         <div>
           <span class="marca-eyebrow">livro-caixa pessoal</span>
           <h1>
-            <svg class="marca-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M3 17.5 9 11l4 4 8-8.5" />
-              <path d="M15 6.5h6v6" />
-            </svg>
+            <img class="marca-logo" src="/assets/marca.svg" alt="" width="22" height="22" />
             OMV
           </h1>
         </div>
         <nav class="menu-abas" aria-label="Navegação principal">
-          <a class="aba-botao" href="../index.html">Início</a>
+          <a class="aba-botao" href="/app">Início</a>
           <a class="aba-botao ativo" aria-current="page">Investimentos</a>
-          <a class="aba-botao" href="metas.html">Metas</a>
+          <a class="aba-botao" href="/app/metas">Metas</a>
         </nav>
         <span class="status-salvamento" id="status-salvamento"
           >carregando...</span
         >
-        <button id="botao-sair" class="botao-voltar botao-perigo" onclick="auth.logout()">
+        <button id="botao-sair" class="botao-voltar botao-perigo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
@@ -196,7 +217,7 @@
       </section>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
-    <script src="../JS/auth.js"></script>
-    <script src="../JS/investimentos.js"></script>
+    <script src="/JS/auth.js"></script>
+    <script src="/JS/investimentos.js"></script>
   </body>
 </html>
