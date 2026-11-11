@@ -14,7 +14,7 @@ async function handler(req, res) {
         );
         return res.status(200).json({ receitas: result.rows });
       } catch (err) {
-        console.error('Erro ao buscar receitas:', err);
+        console.error('Erro ao buscar receitas:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -35,7 +35,7 @@ async function handler(req, res) {
         );
         return res.status(201).json({ receita: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao criar receita:', err);
+        console.error('Erro ao criar receita:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -60,7 +60,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ receita: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao atualizar receita:', err);
+        console.error('Erro ao atualizar receita:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -81,7 +81,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ mensagem: 'Receita removida' });
       } catch (err) {
-        console.error('Erro ao remover receita:', err);
+        console.error('Erro ao remover receita:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }

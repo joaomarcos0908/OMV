@@ -102,7 +102,7 @@ async function handler(req, res) {
       console.error('Erro no login: env ausente', err.message);
       return res.status(500).json({ erro: 'Serviço temporariamente indisponível' });
     }
-    console.error('Erro no login:', err);
+    console.error('Erro no login:', err.code || 'INTERNAL');
     return res.status(500).json({ erro: 'Erro interno do servidor' });
   }
 }

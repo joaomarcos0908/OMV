@@ -8,7 +8,8 @@
   },
   "scripts": {
     "gerar-icones": "node scripts/gerar-icones.mjs",
-    "checar": "node scripts/checar.mjs"
+    "checar": "node scripts/checar.mjs",
+    "test": "node --test scripts/testar-privacidade.mjs"
   },
   "dependencies": {
     "@neon/config": "^1.1.0",

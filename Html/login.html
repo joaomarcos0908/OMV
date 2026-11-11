@@ -27,9 +27,6 @@
     <meta name="twitter:title" content="Entrar — OMV | Organiza Minha Vida" />
     <meta name="twitter:description" content="Acesse sua conta do OMV para acompanhar receitas, despesas, investimentos e metas." />
     <meta name="twitter:image" content="https://omv-lake.vercel.app/assets/og-image.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/CSS/estilosPagPrincipal.css" />
     <link rel="stylesheet" href="/CSS/estilosLogin.css" />
     <link rel="stylesheet" href="/CSS/interface.css" />
@@ -80,7 +77,7 @@
             <label for="cadastro-senha">Senha</label>
             <div class="senha-controle"><input type="password" minlength="8" maxlength="128" id="cadastro-senha" name="cadastro-senha" autocomplete="new-password" required placeholder="De 8 a 128 caracteres" /><button type="button" data-senha="cadastro-senha" aria-controls="cadastro-senha" aria-pressed="false">Mostrar senha</button></div>
           </div>
-          <button class="btn-login" id="cadastro-botao">Criar conta</button>
+          <p class="texto-ajuda">Usamos seu nome, e-mail e dados financeiros para prestar o serviço. Leia a <a href="/privacidade">política de privacidade</a> antes de criar sua conta. Não usamos seus dados para publicidade.</p><button class="btn-login" id="cadastro-botao">Criar conta</button>
           <div class="form-footer">
             <span></span>
             <button type="button" class="link-cadastro" id="link-login">Voltar para login</button>
@@ -88,6 +85,7 @@
         </form>
       </div>
     </div>
+    <footer class="rodape-privacidade"><a href="/privacidade">Política de privacidade</a><a href="/app/privacidade">Meus dados</a><a href="mailto:joaomarcosnog10@gmail.com">Contato de privacidade</a></footer>
     <script src="/JS/auth.js"></script>
     <script src="/JS/interface.js"></script>
     <script src="/JS/login.js"></script>

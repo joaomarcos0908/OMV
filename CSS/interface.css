@@ -43,3 +43,12 @@ summary:focus-visible { outline: 2px solid #72b8ff; outline-offset: 3px; }
 }
 .formulario-recolhivel .cartao > h2 { display: none; }
 [hidden] { display: none !important; }
+.rodape-privacidade { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 24px; padding: 24px 0; font-size: 13px; }
+.rodape-privacidade a, .politica a { color: #a5ceff; text-decoration: underline; }
+.pagina-privacidade { display: block; }
+.pagina-privacidade .aplicativo { max-width: 900px; margin: auto; }
+.politica { font-size: 16px; line-height: 1.75; }
+.politica h2 { margin-top: 32px; font-size: 22px; color: #c4ddff; }
+.politica li { margin: 12px 0; }
+.politica code { overflow-wrap: anywhere; }
+body:has(.login-card) { flex-direction: column; }

@@ -145,3 +145,13 @@ volta como `null` sem afetar os demais.
 ## LicenÃ§a
 
 MIT
+
+## Privacidade e direitos dos titulares
+
+- `/privacidade`: política pública com identificação do controlador e contato.
+- `/app/privacidade`: correção do nome, exportação JSON e exclusão autenticada da conta.
+- `npm test`: testes isolados dos controles de acesso e operações de privacidade, sem conexão com o banco real.
+- `docs/adequacao-lgpd.md`: inventário, análise técnica e pendências de adequação.
+- `docs/procedimentos-privacidade.md`: atendimento, retenção, fornecedores e incidentes.
+
+O Chart.js 4.4.0 é servido de `assets/vendor/`, com licença incluída. As páginas usam fontes locais do sistema e não dependem de Google Fonts. A adequação integral depende também de contratos, regiões, retenção e procedimentos operacionais documentados no relatório.

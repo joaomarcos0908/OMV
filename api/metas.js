@@ -3,7 +3,7 @@ const { autenticar } = require('./_lib/autenticar');
 const { textoValido, valorValido, valorOpcionalValido, dataISOopcional, uuidValido } = require('./_lib/validar');
 
 async function handler(req, res) {
-  autenticar(req, res, async () => {
+  return autenticar(req, res, async () => {
     const usuarioId = req.usuario.id;
 
     if (req.method === 'GET') {
@@ -14,7 +14,7 @@ async function handler(req, res) {
         );
         return res.status(200).json({ metas: result.rows });
       } catch (err) {
-        console.error('Erro ao buscar metas:', err);
+        console.error('Erro ao buscar metas:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -35,7 +35,7 @@ async function handler(req, res) {
         );
         return res.status(201).json({ meta: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao criar meta:', err);
+        console.error('Erro ao criar meta:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -43,7 +43,7 @@ async function handler(req, res) {
     if (req.method === 'PUT') {
       const { id, valorAtual } = req.body || {};
       if (!uuidValido(id)) return res.status(400).json({ erro: 'ID inválido' });
-      if (valorAtual === null || valorAtual === undefined || valorAtual === '' || !valorOpcionalValido(valorAtual)) {
+      if (valorAtual === null || valorAtual === undefined || valorAtual === '' || !['number', 'string'].includes(typeof valorAtual) || !valorOpcionalValido(valorAtual) || Number(valorAtual) > 99999999.99) {
         return res.status(400).json({ erro: 'Valor guardado inválido' });
       }
       try {
@@ -54,7 +54,7 @@ async function handler(req, res) {
         if (!result.rows.length) return res.status(404).json({ erro: 'Meta não encontrada' });
         return res.status(200).json({ meta: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao atualizar meta:', err);
+        console.error('Erro ao atualizar meta:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -75,7 +75,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ mensagem: 'Meta removida' });
       } catch (err) {
-        console.error('Erro ao remover meta:', err);
+        console.error('Erro ao remover meta:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }

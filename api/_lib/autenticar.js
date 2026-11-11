@@ -44,7 +44,7 @@ async function autenticar(req, res, next) {
     try {
       return await next();
     } catch (err) {
-      console.error('Erro no handler autenticado:', err);
+      console.error('Erro no handler autenticado:', err.code || 'INTERNAL');
       if (!res.headersSent) {
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }

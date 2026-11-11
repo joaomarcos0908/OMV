@@ -7,7 +7,7 @@ function checkRateLimit(req, { windowMs = 60000, max = 20 } = {}) {
     req.headers['x-real-ip'] ||
     req.socket?.remoteAddress ||
     'unknown';
-  const key = ip + ':' + (req.url || '');
+  const key = ip + ':' + (req.url || '').split('?')[0];
   const now = Date.now();
   let entry = buckets.get(key);
   if (!entry || now > entry.resetAt) {

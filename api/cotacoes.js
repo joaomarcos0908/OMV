@@ -235,7 +235,7 @@ async function handler(req, res) {
       res.setHeader('Cache-Control', 'private, max-age=30');
       return res.status(200).json({ cotações });
     } catch (err) {
-      console.error('Erro ao buscar cotações:', err);
+      console.error('Erro ao buscar cotações:', err.code || 'INTERNAL');
       return res.status(500).json({ erro: 'Erro interno do servidor' });
     }
   });

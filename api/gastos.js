@@ -14,7 +14,7 @@ async function handler(req, res) {
         );
         return res.status(200).json({ gastos: result.rows });
       } catch (err) {
-        console.error('Erro ao buscar gastos:', err);
+        console.error('Erro ao buscar gastos:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -35,7 +35,7 @@ async function handler(req, res) {
         );
         return res.status(201).json({ gasto: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao criar gasto:', err);
+        console.error('Erro ao criar gasto:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -60,7 +60,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ gasto: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao atualizar gasto:', err);
+        console.error('Erro ao atualizar gasto:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -81,7 +81,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ mensagem: 'Gasto removido' });
       } catch (err) {
-        console.error('Erro ao remover gasto:', err);
+        console.error('Erro ao remover gasto:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }

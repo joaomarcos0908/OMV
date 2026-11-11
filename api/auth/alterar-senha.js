@@ -49,7 +49,7 @@ async function handler(req, res) {
 
       return res.status(200).json({ mensagem: 'Senha alterada com sucesso' });
     } catch (err) {
-      console.error('Erro ao alterar senha:', err);
+      console.error('Erro ao alterar senha:', err.code || 'INTERNAL');
       return res.status(500).json({ erro: 'Erro interno do servidor' });
     }
   });

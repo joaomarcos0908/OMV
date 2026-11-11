@@ -66,7 +66,8 @@ for (const arquivo of ['package.json', 'vercel.json', 'assets/site.webmanifest']
 // ---------------------------------------------------------------- 3. assets
 console.log('\n[3] Assets referenciados no HTML');
 // rotas servidas por rewrite (vercel.json) — não são arquivos no disco
-const rotasVirtuais = new Set(['/', '/app', '/app/investimentos', '/app/metas', '/login']);
+const configRotas = JSON.parse(readFileSync(join(raiz, 'vercel.json'), 'utf8'));
+const rotasVirtuais = new Set(['/', ...(configRotas.rewrites || []).map(r => r.source)]);
 const htmls = listar(join(raiz, 'Html'), ['.html']).concat([join(raiz, 'index.html')]);
 let checados = 0;
 for (const html of htmls) {

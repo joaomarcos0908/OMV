@@ -19,7 +19,7 @@ async function handler(req, res) {
         );
         return res.status(200).json({ investimentos: result.rows });
       } catch (err) {
-        console.error('Erro ao buscar investimentos:', err);
+        console.error('Erro ao buscar investimentos:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -43,7 +43,7 @@ async function handler(req, res) {
         );
         return res.status(201).json({ investimento: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao criar investimento:', err);
+        console.error('Erro ao criar investimento:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -66,7 +66,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ investimento: result.rows[0] });
       } catch (err) {
-        console.error('Erro ao atualizar investimento:', err);
+        console.error('Erro ao atualizar investimento:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
@@ -87,7 +87,7 @@ async function handler(req, res) {
         }
         return res.status(200).json({ mensagem: 'Investimento removido' });
       } catch (err) {
-        console.error('Erro ao remover investimento:', err);
+        console.error('Erro ao remover investimento:', err.code || 'INTERNAL');
         return res.status(500).json({ erro: 'Erro interno do servidor' });
       }
     }
