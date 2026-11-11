@@ -32,7 +32,8 @@
     esconderAlertas();
   });
 
-  document.getElementById('login-botao').addEventListener('click', async function() {
+  loginTab.addEventListener('submit', async function(event) {
+    event.preventDefault();
     esconderAlertas();
     const email = document.getElementById('login-email').value.trim();
     const senha = document.getElementById('login-senha').value;
@@ -66,7 +67,8 @@
     }
   });
 
-  document.getElementById('cadastro-botao').addEventListener('click', async function() {
+  cadastroTab.addEventListener('submit', async function(event) {
+    event.preventDefault();
     esconderAlertas();
     const nome = document.getElementById('cadastro-nome').value.trim();
     const email = document.getElementById('cadastro-email').value.trim();
@@ -88,15 +90,12 @@
       });
 
       if (dados) {
-        mostrarAlerta(alertaCadastro, 'Conta criada! Agora faça login.', 'sucesso');
-        document.getElementById('cadastro-nome').value = '';
-        document.getElementById('cadastro-email').value = '';
+        document.getElementById('login-email').value = email;
         document.getElementById('cadastro-senha').value = '';
-        setTimeout(function() {
-          cadastroTab.classList.remove('ativo');
-          loginTab.classList.add('ativo');
-          esconderAlertas();
-        }, 2000);
+        cadastroTab.classList.remove('ativo');
+        loginTab.classList.add('ativo');
+        mostrarAlerta(alertaLogin, 'Conta criada! Digite sua senha para entrar.', 'sucesso');
+        document.getElementById('login-senha').focus();
       }
     } catch (err) {
       const msg = (err && err.data && err.data.erro) || err.message || 'Erro de conexão. Tente novamente.';

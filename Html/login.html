@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/site.webmanifest" />
-    <meta name="theme-color" content="#0E1013" />
+    <meta name="theme-color" content="#07152e" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OMV — Organiza Minha Vida" />
     <meta property="og:locale" content="pt_BR" />
@@ -32,6 +32,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/CSS/estilosPagPrincipal.css" />
     <link rel="stylesheet" href="/CSS/estilosLogin.css" />
+    <link rel="stylesheet" href="/CSS/interface.css" />
   </head>
   <body>
     <div class="aplicativo">
@@ -47,47 +48,48 @@
         <h1>OMV<br />Organiza Minha Vida</h1>
       </header>
       <div class="cartao-tech login-card">
-        <div id="alerta-login" class="alerta erro"></div>
-        <div id="login-tab" class="tab ativo">
+        <div role="alert" id="alerta-login" class="alerta erro"></div>
+        <form id="login-tab" class="tab ativo">
           <h2>Bem-vindo de volta</h2>
           <div class="campo">
             <label for="login-email">Email</label>
-            <input type="email" id="login-email" placeholder="seu@email.com" />
+            <input type="email" id="login-email" name="login-email" autocomplete="username" required placeholder="seu@email.com" />
           </div>
           <div class="campo">
             <label for="login-senha">Senha</label>
-            <input type="password" id="login-senha" placeholder="Sua senha" />
+            <div class="senha-controle"><input type="password" id="login-senha" name="login-senha" autocomplete="current-password" required placeholder="Sua senha" /><button type="button" data-senha="login-senha" aria-controls="login-senha" aria-pressed="false">Mostrar senha</button></div>
           </div>
           <button class="btn-login" id="login-botao">Entrar</button>
           <div class="form-footer">
             <span class="texto-ajuda-login">Primeiro acesso?</span>
-            <button class="link-cadastro" id="link-cadastro">Criar conta</button>
+            <button type="button" class="link-cadastro" id="link-cadastro">Criar conta</button>
           </div>
-        </div>
-        <div id="cadastro-tab" class="tab">
+        </form>
+        <form id="cadastro-tab" class="tab">
           <h2>Criar conta</h2>
-          <div class="alerta" id="alerta-cadastro"></div>
+          <div class="alerta" role="alert" id="alerta-cadastro"></div>
           <div class="campo">
             <label for="cadastro-nome">Nome</label>
-            <input type="text" id="cadastro-nome" placeholder="Seu nome" />
+            <input type="text" id="cadastro-nome" name="cadastro-nome" autocomplete="name" required placeholder="Seu nome" />
           </div>
           <div class="campo">
             <label for="cadastro-email">Email</label>
-            <input type="email" id="cadastro-email" placeholder="seu@email.com" />
+            <input type="email" id="cadastro-email" name="cadastro-email" autocomplete="email" required placeholder="seu@email.com" />
           </div>
           <div class="campo">
             <label for="cadastro-senha">Senha</label>
-            <input type="password" id="cadastro-senha" placeholder="Mínimo 6 caracteres" />
+            <div class="senha-controle"><input type="password" minlength="8" maxlength="128" id="cadastro-senha" name="cadastro-senha" autocomplete="new-password" required placeholder="De 8 a 128 caracteres" /><button type="button" data-senha="cadastro-senha" aria-controls="cadastro-senha" aria-pressed="false">Mostrar senha</button></div>
           </div>
           <button class="btn-login" id="cadastro-botao">Criar conta</button>
           <div class="form-footer">
             <span></span>
-            <button class="link-cadastro" id="link-login">Voltar para login</button>
+            <button type="button" class="link-cadastro" id="link-login">Voltar para login</button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
     <script src="/JS/auth.js"></script>
+    <script src="/JS/interface.js"></script>
     <script src="/JS/login.js"></script>
   </body>
 </html>

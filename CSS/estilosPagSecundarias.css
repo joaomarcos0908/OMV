@@ -3,26 +3,26 @@
      página não virar um tabuleiro de caixas. O azul aparece só onde há
      ação real (botão primário, foco, item ativo) e o verde/vermelho só em
      número de alta/baixa. O resto é neutro. */
-  --fundo-escuro: #0E1013;
-  --fundo-card: #16191E;
-  --fundo-card-alto: #1D2127;
-  --fundo-input: #1D2127;
-  --borda-card: #23272E;
-  --borda-input: #2E333B;
+  --fundo-escuro: #07152e;
+  --fundo-card: #0c2142;
+  --fundo-card-alto: #102c52;
+  --fundo-input: #102c52;
+  --borda-card: #203e65;
+  --borda-input: #315681;
   --texto-primario: #E7E9EC;
-  --texto-secundario: #9AA0A8;
-  --texto-fraca: #6B7078;
-  --destaque-ciano: #4C8DFF;
-  --destaque-ciano-hover: #3E7BEC;
-  --destaque-azul: #4C8DFF;
-  --gradiente-destaque: none;
-  --sombra-botao: none;
+  --texto-secundario: #b4c6df;
+  --texto-fraca: #a0b3ce;
+  --destaque-ciano: #397dff;
+  --destaque-ciano-hover: #2465df;
+  --destaque-azul: #397dff;
+  --gradiente-destaque: linear-gradient(110deg, #2465df, #52a8ff);
+  --sombra-botao: 0 4px 18px rgba(57,125,255,.28);
   --verde: #3DD68C;
   --vermelho: #F2555A;
   --dourado: #E0B94A;
   --esmeralda: #3DD68C;
   --terracota: #F2555A;
-  --azul-aco: #4C8DFF;
+  --azul-aco: #397dff;
   --toque-ciano: rgba(76, 141, 255, 0.12);
   --toque-perigo: rgba(242, 85, 90, 0.12);
   --raio: 8px;

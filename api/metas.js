@@ -40,6 +40,25 @@ async function handler(req, res) {
       }
     }
 
+    if (req.method === 'PUT') {
+      const { id, valorAtual } = req.body || {};
+      if (!uuidValido(id)) return res.status(400).json({ erro: 'ID inválido' });
+      if (valorAtual === null || valorAtual === undefined || valorAtual === '' || !valorOpcionalValido(valorAtual)) {
+        return res.status(400).json({ erro: 'Valor guardado inválido' });
+      }
+      try {
+        const result = await query(
+          'UPDATE metas SET valor_atual = $1 WHERE id = $2 AND usuario_id = $3 RETURNING id, nome, valor_alvo, valor_atual, data_limite',
+          [Number(valorAtual), id, usuarioId]
+        );
+        if (!result.rows.length) return res.status(404).json({ erro: 'Meta não encontrada' });
+        return res.status(200).json({ meta: result.rows[0] });
+      } catch (err) {
+        console.error('Erro ao atualizar meta:', err);
+        return res.status(500).json({ erro: 'Erro interno do servidor' });
+      }
+    }
+
     if (req.method === 'DELETE') {
       const { id } = (req.body || {});
       if (!id) {

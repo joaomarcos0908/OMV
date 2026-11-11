@@ -110,8 +110,11 @@
     const valorAlvo = parseDecimal(document.getElementById('meta-valor-alvo').value);
     const valorAtual = parseDecimal(document.getElementById('meta-valor-atual').value) || 0;
     const dataLimite = converterDataParaISO(document.getElementById('meta-data-limite').value);
-    if(!nome || !valorAlvo || valorAlvo<=0){ return; }
-    if(dataLimite && dataLimite <= new Date().toISOString().slice(0,10)){ return; }
+    if (!nome) { interfaceOMV.invalido('meta-nome', 'Dê um nome à sua meta.'); return; }
+    if (!Number.isFinite(valorAlvo) || valorAlvo <= 0) { interfaceOMV.invalido('meta-valor-alvo', 'Informe um valor alvo maior que zero.'); return; }
+    if (valorAtual < 0) { interfaceOMV.invalido('meta-valor-atual', 'O valor guardado não pode ser negativo.'); return; }
+    if (!interfaceOMV.dataValida('meta-data-limite', true)) return;
+    if (dataLimite && dataLimite < new Date().toLocaleDateString('sv-SE')) { interfaceOMV.invalido('meta-data-limite', 'Escolha hoje ou uma data futura.'); return; }
     const statusEl = document.getElementById('status-salvamento');
     try{
       await auth.apiFetch('/metas', {
@@ -130,6 +133,8 @@
   });
 
   async function removerMeta(id){
+    const item = estado.metas.find(item => item.id === id);
+    if (!item || !window.confirm('Excluir meta "' + item.nome + '"? Esta ação não pode ser desfeita.')) return;
     const statusEl = document.getElementById('status-salvamento');
     try{
       await auth.apiFetch('/metas', {
@@ -153,7 +158,8 @@
       return 0;
     });
     if(ordenadas.length===0){
-      lista.innerHTML = '<p class="texto-ajuda">Nenhuma meta cadastrada ainda</p>';
+      lista.innerHTML = '<p class="texto-ajuda">Comece pela sua reserva de emergência. Dê um nome à meta e defina quanto quer guardar.</p><button class="botao-secundario" id="criar-primeira-meta">Criar primeira meta</button>';
+      document.getElementById('criar-primeira-meta').addEventListener('click', () => document.getElementById('meta-nome').focus());
     } else {
       ordenadas.forEach(m=>{
         const progresso = m.valorAlvo>0 ? Math.min(100, (m.valorAtual/m.valorAlvo)*100) : 0;
@@ -164,14 +170,39 @@
             <span class="meta-nome">${escaparHtml(m.nome)}</span>
             <span class="meta-valores">${formatarMoeda(m.valorAtual)} / ${formatarMoeda(m.valorAlvo)}</span>
           </div>
-          <div class="barra-trilho">
+          <p class="meta-progresso">${Math.round(progresso)}% concluído · ${m.valorAtual >= m.valorAlvo ? 'Meta alcançada!' : 'Faltam ' + formatarMoeda(m.valorAlvo - m.valorAtual)}</p>
+          <div class="barra-trilho" role="progressbar" aria-label="Progresso de ${escaparHtml(m.nome)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progresso)}">
             <div class="barra-preenchimento" style="width:${progresso}%"></div>
           </div>
           <div class="meta-rodape">
             <span>${m.dataLimite ? 'Limite: '+formatarDataBR(m.dataLimite) : 'Sem data limite'}</span>
             <button class="botao-icone botao-perigo" data-id="${m.id}" title="Remover" aria-label="Remover meta ${escaparHtml(m.nome)}">${ICONE_REMOVER}</button>
           </div>
+          <form class="meta-atualizar">
+            <div class="campo"><label for="guardado-${m.id}">Total já guardado (R$)</label><input id="guardado-${m.id}" inputmode="decimal" value="${m.valorAtual.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}" required /></div>
+            <button class="botao-secundario" type="submit">Atualizar valor</button>
+          </form>
         `;
+        const campo = div.querySelector('input');
+        mascaraMoeda(campo);
+        div.querySelector('form').addEventListener('submit', async event => {
+          event.preventDefault();
+          const valorAtual = parseDecimal(campo.value);
+          if (!Number.isFinite(valorAtual) || valorAtual < 0) { interfaceOMV.invalido(campo.id, 'Informe um valor válido, igual ou maior que zero.'); return; }
+          const botao = event.currentTarget.querySelector('button');
+          botao.disabled = true;
+          try {
+            const res = await auth.apiFetch('/metas', { method: 'PUT', body: JSON.stringify({ id: m.id, valorAtual }) });
+            if (!res) return;
+            m.valorAtual = valorAtual;
+            renderizarMetas();
+            interfaceOMV.mensagem('Valor da meta atualizado.');
+            const atualizado = document.getElementById(campo.id);
+            if (atualizado) atualizado.focus();
+          } catch (erro) {
+            interfaceOMV.mensagem('Não foi possível atualizar a meta. Confira sua conexão e tente novamente.', 'erro', div);
+          } finally { botao.disabled = false; }
+        });
         div.querySelector('button').addEventListener('click', ()=>removerMeta(m.id));
         lista.appendChild(div);
       });

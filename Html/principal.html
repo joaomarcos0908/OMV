@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/site.webmanifest" />
-    <meta name="theme-color" content="#0E1013" />
+    <meta name="theme-color" content="#07152e" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OMV — Organiza Minha Vida" />
     <meta property="og:locale" content="pt_BR" />
@@ -36,6 +36,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/CSS/estilosPagSecundarias.css" />
+    <link rel="stylesheet" href="/CSS/interface.css" />
   </head>
   <body>
     <div class="aplicativo aplicativo--largo">
@@ -58,7 +59,7 @@
           <a class="aba-botao" href="/app/investimentos">Investimentos</a>
           <a class="aba-botao" href="/app/metas">Metas</a>
         </nav>
-        <span class="status-salvamento" id="status-salvamento"
+        <span class="status-salvamento" id="status-salvamento" role="status" aria-live="polite"
           >carregando...</span
         >
         <button id="botao-sair" class="botao-voltar botao-perigo">
@@ -93,8 +94,7 @@
         ></div>
       </div>
 
-      <div class="grade-dupla">
-        <div class="cartao" id="form-receita">
+      <div class="acoes-painel"><button class="botao-primario" data-abrir="form-receita">Nova receita</button><button class="botao-secundario" data-abrir="form-gasto">Nova despesa</button></div><details class="formulario-recolhivel" id="abrir-form-receita"><summary>Nova receita</summary><div class="cartao" id="form-receita">
           <h2>Nova receita</h2>
           <div class="linha-formulario">
             <div class="campo">
@@ -139,10 +139,8 @@
               Adicionar receita
             </button>
           </div>
-        </div>
-
-        <div class="cartao" id="form-gasto">
-          <h2>Nova Despesa</h2>
+        </div></details><details class="formulario-recolhivel" id="abrir-form-gasto"><summary>Nova despesa</summary><div class="cartao" id="form-gasto">
+          <h2>Nova despesa</h2>
           <div class="linha-formulario">
             <div class="campo">
               <label for="gasto-descricao">Descrição</label>
@@ -165,7 +163,7 @@
               </select>
             </div>
             <div class="campo campo-estreita">
-              <label>Tipo</label>
+              <label>Tipo</label><p class="texto-ajuda" id="ajuda-despesa-fixa">Despesas fixas se repetem automaticamente nos próximos meses.</p>
               <div class="grupo-radio">
                 <label class="radio-opcao">
                   <input
@@ -181,7 +179,7 @@
                   <input
                     type="radio"
                     name="gasto-tipo"
-                    id="gasto-fixa"
+                    aria-describedby="ajuda-despesa-fixa" id="gasto-fixa"
                     value="fixa"
                   />
                   <span>Fixa</span>
@@ -210,13 +208,16 @@
           </div>
           <div class="rodape-formulario">
             <button class="botao-primario" id="gasto-botao-adicionar">
-              Adicionar gasto
+              Adicionar despesa
             </button>
           </div>
-        </div>
+        </div></details><div class="grade-dupla">
+        
+
+        
 
         <div class="cartao" id="tabela-receitas">
-          <h2>Lançamentos receitas</h2>
+          <h2>Receitas do mês</h2>
           <div class="tabela-wrapper">
             <table>
               <thead>
@@ -234,7 +235,7 @@
         </div>
 
         <div class="cartao" id="tabela-gastos">
-          <h2>Lançamentos despesas</h2>
+          <h2>Despesas do mês</h2>
           <div class="tabela-wrapper">
             <table>
               <thead>
@@ -282,6 +283,7 @@
       crossorigin="anonymous"
     ></script>
     <script src="/JS/auth.js"></script>
+    <script src="/JS/interface.js"></script>
     <script src="/JS/principal.js"></script>
   </body>
 </html>

@@ -468,7 +468,7 @@
   document.getElementById('investimento-botao-adicionar').addEventListener('click', async function(){
     const nome = nomeInput.value.trim();
     const tipo = tipoSelect.value;
-    if(!nome) return;
+    if (!nome) { interfaceOMV.invalido('investimento-nome', 'Informe o ticker ou nome do ativo.'); return; }
 
     const temApi = TIPOS_COM_COTACAO.includes(tipo);
 
@@ -479,7 +479,9 @@
       const valorAplicado = parseDecimal(document.getElementById('rendafixa-valor-aplicado').value);
       const tipoRendimento = document.getElementById('rendafixa-tipo-rendimento').value;
       const taxa = parseFloat(document.getElementById('rendafixa-taxa').value);
-      if(!dataAplicacao || !valorAplicado || valorAplicado <= 0 || !taxa || taxa <= 0) return;
+      if (!interfaceOMV.dataValida('rendafixa-data-aplicacao', false)) return;
+      if (!valorAplicado || valorAplicado <= 0) { interfaceOMV.invalido('rendafixa-valor-aplicado', 'Informe um valor aplicado maior que zero.'); return; }
+      if (!taxa || taxa <= 0) { interfaceOMV.invalido('rendafixa-taxa', 'Informe uma taxa maior que zero.'); return; }
       payload.dataAplicacao = converterDataParaISO(dataAplicacao);
       payload.valorAplicado = valorAplicado;
       payload.tipoRendimento = tipoRendimento;
@@ -487,7 +489,8 @@
     } else {
       const quantidade = parseFloat(document.getElementById('investimento-quantidade').value);
       const precoMedio = parseDecimal(document.getElementById('investimento-preco-medio').value);
-      if(!quantidade || quantidade <= 0 || !precoMedio || precoMedio <= 0) return;
+      if (!quantidade || quantidade <= 0) { interfaceOMV.invalido('investimento-quantidade', 'Informe uma quantidade maior que zero.'); return; }
+      if (!precoMedio || precoMedio <= 0) { interfaceOMV.invalido('investimento-preco-medio', 'Informe um preço médio maior que zero.'); return; }
       payload.quantidade = quantidade;
       payload.precoMedio = precoMedio;
     }
@@ -553,6 +556,8 @@
   });
 
   async function removerInvestimento(id){
+    const item = estado.investimentos.find(item => item.id === id);
+    if (!item || !window.confirm('Excluir ativo "' + item.nome + '"? Esta ação não pode ser desfeita.')) return;
     const statusEl = document.getElementById('status-salvamento');
     try{
       await auth.apiFetch('/investimentos', { method: 'DELETE', body: JSON.stringify({ id }) });

@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
     <link rel="manifest" href="/assets/site.webmanifest" />
-    <meta name="theme-color" content="#0E1013" />
+    <meta name="theme-color" content="#07152e" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="OMV — Organiza Minha Vida" />
     <meta property="og:locale" content="pt_BR" />
@@ -31,6 +31,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/CSS/estilosPagSecundarias.css" />
+    <link rel="stylesheet" href="/CSS/interface.css" />
   </head>
   <body>
     <div class="aplicativo">
@@ -47,7 +48,7 @@
           <a class="aba-botao" href="/app/investimentos">Investimentos</a>
           <a class="aba-botao ativo" aria-current="page">Metas</a>
         </nav>
-        <span class="status-salvamento" id="status-salvamento"
+        <span class="status-salvamento" id="status-salvamento" role="status" aria-live="polite"
           >carregando...</span
         >
         <button id="botao-sair" class="botao-voltar botao-perigo">
@@ -108,6 +109,7 @@
       </section>
     </div>
     <script src="/JS/auth.js"></script>
+    <script src="/JS/interface.js"></script>
     <script src="/JS/metas.js"></script>
   </body>
 </html>

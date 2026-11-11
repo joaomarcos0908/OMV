@@ -1,19 +1,19 @@
 :root {
   /* mesmos tokens de estilosPagSecundarias.css, para o login nao destoar */
-  --fundo-escuro: #0e2850;
-  --fundo-card: #16191e;
-  --fundo-card-alto: #1d2127;
-  --fundo-input: #1d2127;
-  --borda-card: #23272e;
-  --borda-input: #2e333b;
+  --fundo-escuro: #07152e;
+  --fundo-card: #0c2142;
+  --fundo-card-alto: #102c52;
+  --fundo-input: #102c52;
+  --borda-card: #203e65;
+  --borda-input: #315681;
   --texto-primario: #e7e9ec;
-  --texto-secundario: #9aa0a8;
-  --texto-fraca: #6b7078;
-  --destaque-ciano: #4c8dff;
-  --destaque-ciano-hover: #3e7bec;
-  --destaque-azul: #4c8dff;
-  --gradiente-destaque: none;
-  --sombra-botao: none;
+  --texto-secundario: #b4c6df;
+  --texto-fraca: #a0b3ce;
+  --destaque-ciano: #397dff;
+  --destaque-ciano-hover: #2465df;
+  --destaque-azul: #397dff;
+  --gradiente-destaque: linear-gradient(110deg, #2465df, #52a8ff);
+  --sombra-botao: 0 4px 18px rgba(57,125,255,.28);
   --toque-ciano: rgba(76, 141, 255, 0.16);
   --verde: #3dd68c;
   --vermelho: #f2555a;
@@ -24,7 +24,7 @@
   --terracota-suave: rgba(242, 85, 90, 0.15);
   --terracota-texto: #f2555a;
   --dourado: #e0b94a;
-  --azul-aco: #4c8dff;
+  --azul-aco: #397dff;
   --raio: 8px;
   --raio-pequeno: 6px;
   --raio-botao: 8px;

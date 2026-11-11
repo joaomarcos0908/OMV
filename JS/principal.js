@@ -240,7 +240,9 @@
     const cat = document.getElementById('gasto-categoria').value;
     const valor = parseDecimal(document.getElementById('gasto-valor').value);
     const data = converterDataParaISO(document.getElementById('gasto-data').value) || new Date().toISOString().slice(0,10);
-    if(!desc || !valor || valor<=0){ return; }
+    if (!desc) { interfaceOMV.invalido('gasto' + '-descricao', 'Informe uma descrição.'); return; }
+    if (!Number.isFinite(valor) || valor <= 0) { interfaceOMV.invalido('gasto' + '-valor', 'Informe um valor maior que zero.'); return; }
+    if (!interfaceOMV.dataValida('gasto' + '-data', true)) return;
     const fixa = document.getElementById('gasto-fixa').checked;
     const statusEl = document.getElementById('status-salvamento');
 
@@ -251,7 +253,7 @@
           body: JSON.stringify({ id: editandoGastoId, descricao: desc, categoria: cat, valor: valor, data: data, fixa: fixa })
         });
         editandoGastoId = null;
-        document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto';
+        document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar despesa';
       } else {
         await auth.apiFetch('/gastos', {
           method: 'POST',
@@ -263,6 +265,7 @@
       statusEl.textContent = 'salvo';
     }catch(e){
       statusEl.textContent = 'erro ao salvar';
+      return;
     }
     await carregarEstado();
   }
@@ -270,13 +273,15 @@
   document.getElementById('gasto-botao-adicionar').addEventListener('click', adicionarOuAtualizarGasto);
 
   async function removerGasto(id){
+    const item = estado.gastos.find(item => item.id === id);
+    if (!item || !window.confirm('Excluir despesa "' + item.desc + '"? Esta ação não pode ser desfeita.')) return;
     const statusEl = document.getElementById('status-salvamento');
     try{
       await auth.apiFetch('/gastos', {
         method: 'DELETE',
         body: JSON.stringify({ id: id })
       });
-      if(editandoGastoId === id){ editandoGastoId = null; document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar gasto'; }
+      if(editandoGastoId === id){ editandoGastoId = null; document.getElementById('gasto-botao-adicionar').textContent = 'Adicionar despesa'; }
       statusEl.textContent = 'removido';
       await carregarEstado();
     }catch(e){
@@ -294,7 +299,7 @@
     document.getElementById(g.fixa ? 'gasto-fixa' : 'gasto-variavel').checked = true;
     editandoGastoId = id;
     document.getElementById('gasto-botao-adicionar').textContent = 'Salvar alteração';
-    document.getElementById('form-gasto').scrollIntoView({ behavior:'smooth', block:'start' });
+    interfaceOMV.abrir('form-gasto');
   }
 
   function renderizarTabelaGastos(mes){
@@ -303,7 +308,7 @@
     corpo.innerHTML='';
     const ordenados = [...gastosDoMes].sort((a,b)=> b.data.localeCompare(a.data));
     if(ordenados.length===0){
-      corpo.innerHTML = '<tr class="linha-vazia"><td colspan="5">Nenhum gasto lançado em ' + formatarChaveMes(mes) + '</td></tr>';
+      corpo.innerHTML = '<tr class="linha-vazia"><td colspan="5">Nenhuma despesa lançada em ' + formatarChaveMes(mes) + '</td></tr>';
     } else {
       ordenados.forEach(g=>{
         const tr = document.createElement('tr');
@@ -336,8 +341,9 @@
     if(graficoGastos) graficoGastos.destroy();
 
     const legenda = document.getElementById('legenda-gastos');
+    ctx.parentElement.hidden = rotulos.length === 0;
     if(rotulos.length===0){
-      legenda.innerHTML = '<span style="font-style:italic; color:var(--texto-fraca);">Nenhum gasto neste mês ainda</span>';
+      legenda.innerHTML = '<span style="font-style:italic; color:var(--texto-fraca);">Nenhuma despesa neste mês ainda</span>';
       return;
     }
 
@@ -386,7 +392,9 @@
     const cat = document.getElementById('receita-categoria').value;
     const valor = parseDecimal(document.getElementById('receita-valor').value);
     const data = converterDataParaISO(document.getElementById('receita-data').value) || new Date().toISOString().slice(0,10);
-    if(!desc || !valor || valor<=0){ return; }
+    if (!desc) { interfaceOMV.invalido('receita' + '-descricao', 'Informe uma descrição.'); return; }
+    if (!Number.isFinite(valor) || valor <= 0) { interfaceOMV.invalido('receita' + '-valor', 'Informe um valor maior que zero.'); return; }
+    if (!interfaceOMV.dataValida('receita' + '-data', true)) return;
     const statusEl = document.getElementById('status-salvamento');
     try{
       if(editandoReceitaId){
@@ -412,6 +420,8 @@
   });
 
   async function removerReceita(id){
+    const item = estado.receitas.find(item => item.id === id);
+    if (!item || !window.confirm('Excluir receita "' + item.desc + '"? Esta ação não pode ser desfeita.')) return;
     const statusEl = document.getElementById('status-salvamento');
     try{
       await auth.apiFetch('/receitas', {
@@ -435,7 +445,7 @@
     document.getElementById('receita-data').value = formatarDataInput(r.data);
     editandoReceitaId = id;
     document.getElementById('receita-botao-adicionar').textContent = 'Salvar alteração';
-    document.getElementById('form-receita').scrollIntoView({ behavior:'smooth', block:'start' });
+    interfaceOMV.abrir('form-receita');
   }
 
   function renderizarTabelaReceitas(mes){
@@ -477,6 +487,7 @@
     if(graficoReceitas) graficoReceitas.destroy();
 
     const legenda = document.getElementById('legenda-receitas');
+    ctx.parentElement.hidden = rotulos.length === 0;
     if(rotulos.length===0){
       legenda.innerHTML = '<span style="font-style:italic; color:var(--texto-fraca);">Nenhuma receita neste mês ainda</span>';
       return;

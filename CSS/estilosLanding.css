@@ -1,14 +1,14 @@
 :root {
-  --fundo-escuro: #0e1013;
-  --fundo-card: #16191e;
-  --fundo-card-alto: #1d2127;
-  --borda-card: #23272e;
-  --borda-input: #2e333b;
+  --fundo-escuro: #07152e;
+  --fundo-card: #0c2142;
+  --fundo-card-alto: #102c52;
+  --borda-card: #203e65;
+  --borda-input: #315681;
   --texto-primario: #e7e9ec;
-  --texto-secundario: #9aa0a8;
-  --texto-fraca: #6b7078;
-  --destaque-ciano: #4c8dff;
-  --destaque-ciano-hover: #3e7bec;
+  --texto-secundario: #b4c6df;
+  --texto-fraca: #a0b3ce;
+  --destaque-ciano: #397dff;
+  --destaque-ciano-hover: #2465df;
   --verde: #3dd68c;
   --toque-ciano: rgba(76, 141, 255, 0.12);
   --raio: 10px;
